@@ -14,12 +14,14 @@ namespace ac{
     const Symbol Eof = 256;
     class Model{
         public:
-            virtual Symbol symbolFromProb(Prob prob) = 0;
-            virtual ProbPair symbolRange(Symbol symbol) = 0;
+            virtual Symbol symbolFromProb(Prob prob) const = 0;
+            virtual ProbPair symbolRange(Symbol symbol) const = 0;
             virtual void processSymbol(Symbol symbol) = 0;
+            virtual Prob totalProb() const = 0;
             virtual ~Model(){
             }
     };
+
     typedef std::tr1::shared_ptr<Model> ModelPtr;
 }
 #endif

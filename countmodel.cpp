@@ -9,7 +9,7 @@ namespace ac{
 // 4567
 // 89abcdef
 // ...
-size_t CountModel::get(Symbol x){
+size_t CountModel::get(Symbol x)const{
     return tree[x+512];
 }
 void CountModel::add(Symbol x,int a){
@@ -20,7 +20,7 @@ void CountModel::add(Symbol x,int a){
         y/=2;
     }
 }
-size_t CountModel::sum(Symbol x){
+size_t CountModel::sum(Symbol x)const{
     int y = 512+x;
     int sum = 0;
     while(y){
@@ -39,8 +39,8 @@ CountModel::CountModel():
         add(i,1);
     }
 }
-Symbol CountModel::symbolFromProb(Prob prob){
-    size_t count = ((uint64_t)(prob+1)*total+ProbMax-1)/ProbMax-1;
+Symbol CountModel::symbolFromProb(Prob prob)const{
+    size_t count = prob;
     int i=1;
     size_t c = 0;
     while(i<512){
@@ -54,13 +54,13 @@ Symbol CountModel::symbolFromProb(Prob prob){
     return Symbol(i-512);
 }
 
-ProbPair CountModel::symbolRange(Symbol symbol){
+ProbPair CountModel::symbolRange(Symbol symbol)const{
     assert(symbol <= Eof);
     Prob low = sum(symbol);
     Prob up = low+get(symbol); 
     //up = (symbol+1)*(symbol+2)/2
     //   = (symbol+1)*symbol/2+2*(symbol+1)/2
-    ProbPair ret(uint64_t(low)*ProbMax/total,uint64_t(up)*ProbMax/total);
+    ProbPair ret(low,up);
     assert(ret.first < ret.second);
     assert(ret.second <= ProbMax);
     return ret;
@@ -69,6 +69,11 @@ ProbPair CountModel::symbolRange(Symbol symbol){
 void CountModel::processSymbol(Symbol  symbol){
     add(symbol);
 }
+
+Prob CountModel::totalProb()const{
+    return total;
+}
+
 
 CountModel::~CountModel(){
 #if 0 

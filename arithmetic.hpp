@@ -10,9 +10,6 @@ namespace ac{
     static bool msbMatch(uint32_t a, uint32_t b){
         return (a>>31)==(b>>31);
     }
-    static bool sndMatch(uint32_t a, uint32_t b){
-        return (a>>30)==(b>>30);
-    }
     void printBits(uint32_t l){
         for(int i=31;i>=0;i--){
             std::cerr<<((l>>i)&1);
@@ -32,10 +29,10 @@ namespace ac{
             upper(~0)
         {
         }
-        void applyProb(Prob l,Prob u){
+        void applyProb(Prob l,Prob u, Prob totalProb){
             uint64_t range = uint64_t(upper)-lower+1;
-            uint64_t scaled_low = (l * range) / ProbMax;
-            uint64_t scaled_up =  (u * range) / ProbMax;
+            uint64_t scaled_low = (l * range) / totalProb;
+            uint64_t scaled_up =  (u * range) / totalProb;
             upper = lower + scaled_up - 1 ;
             lower = lower + scaled_low;
         }
@@ -61,11 +58,10 @@ namespace ac{
         bool lowMsb()const{
             return lower>>31;
         }
-        Prob readProb(uint32_t code) {
+        Prob readProb(uint32_t code, uint32_t totalProb) {
             uint64_t range = uint64_t(upper - lower) + 1;
-            //assert(ProbMax <= range);
             uint64_t unscaled = uint64_t(code - lower) + 1;
-            unscaled = unscaled*ProbMax;
+            unscaled = unscaled*totalProb;
             unscaled--;
             unscaled /= range;
             return Prob(unscaled);
@@ -77,21 +73,8 @@ namespace ac{
         ModelPtr m_model;
         Range range;
         void encodeRange(Prob l,Prob u){
-            range.applyProb(l,u);
-            /*
-            uint64_t range = uint64_t(m_upper)-m_lower+1;
-            std::cerr<<"range="<<range<<"\n";
-            std::cerr<<"ranges:\n";
-            printBits(m_lower);
-            printBits(m_upper);
-            uint64_t scaled_low = (l * range) / ProbMax;
-            uint64_t scaled_up =  (u * range) / ProbMax;
-            m_upper = m_lower + scaled_up - 1 ;
-            m_lower = m_lower + scaled_low;
-            std::cerr<<"new ranges:\n";
-            printBits(m_lower);
-            printBits(m_upper);
-            */
+            range.applyProb(l, u, m_model->totalProb());
+
             while(range.msbMatch())
             {
                 //m_bout.br();
@@ -136,8 +119,8 @@ namespace ac{
 
     class Decoder{
         Range range;
-        uint32_t m_code;
         BitInStream m_bin;
+        uint32_t m_code;
         ModelPtr m_model;
         public:
         Decoder(ModelPtr model,std::istream* in, bool own):
@@ -173,11 +156,11 @@ namespace ac{
 
 
         Symbol readSymbol(){
-            Prob p = range.readProb(m_code);
+            Prob p = range.readProb(m_code, m_model->totalProb());
             //std::cerr<<"P = "<<p<<"\n";
             Symbol ret = m_model->symbolFromProb(p);
             ProbPair rng = m_model->symbolRange(ret);
-            range.applyProb(rng.first, rng.second);
+            range.applyProb(rng.first, rng.second, m_model->totalProb());
             readBits();
             m_model->processSymbol(ret);
             return ret;

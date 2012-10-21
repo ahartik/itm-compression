@@ -13,14 +13,15 @@ namespace ac{
     class CountModel: public Model{
         size_t tree[2*512];
         void add(Symbol x,int a=16);
-        size_t get(Symbol x);
-        size_t sum(Symbol x);
+        size_t get(Symbol x)const;
+        size_t sum(Symbol x)const;
         size_t total;
         public:
             CountModel();
-            virtual Symbol symbolFromProb(Prob prob);
-            virtual ProbPair symbolRange(Symbol symbol);
+            virtual Symbol symbolFromProb(Prob prob)const;
+            virtual ProbPair symbolRange(Symbol symbol)const;
             virtual void processSymbol(Symbol  symbol);
+            virtual Prob totalProb()const;
             virtual ~CountModel();
     };
 }

@@ -1,33 +1,31 @@
-
-default:modeltest encode decode
+default:modeltest acencode acdecode encodetest
 
 CXX=g++
-CXXFLAGS=-O3 -Wall
+CXXFLAGS=-Os -Wall
 #LDFLAGS=-lfann
 LDFLAGS=
-MODEL_FILES=model.hpp dummymodel.hpp countmodel.hpp countmodel.cpp  triemodel.hpp triemodel.cpp
+MODEL_FILES=model.hpp countmodel.hpp countmodel.cpp
 #annmodel.hpp annmodel.cpp
-MODEL_OBJECTS=countmodel.o triemodel.o
+MODEL_OBJECTS=countmodel.o
 #annmodel.o
 
 countmodel.o:countmodel.cpp countmodel.hpp model.hpp
-	${CXX} ${CXXFLAGS} -c countmodel.cpp
-
-triemodel.o:triemodel.cpp triemodel.hpp model.hpp
-	${CXX} ${CXXFLAGS} -c triemodel.cpp
-	
-#annmodel.o:annmodel.cpp annmodel.hpp model.hpp
-#${CXX} ${CXXFLAGS} -c annmodel.cpp
+	${CXX} ${CXXFLAGS} -c $<
 
 modeltest:modeltest.cpp ${MODEL_FILES} ${MODEL_OBJECTS}
 	${CXX} ${CXXFLAGS} modeltest.cpp ${MODEL_OBJECTS} -o modeltest ${LDFLAGS}
 
-encode:encodetest.cpp arithmetic.hpp bitstream.hpp ${MODEL_FILES} 
-	${CXX} ${CXXFLAGS} -o encode encodetest.cpp ${MODEL_OBJECTS} ${LDFLAGS}
-decode:decodetest.cpp arithmetic.hpp bitstream.hpp ${MODEL_FILES} 
-	${CXX} ${CXXFLAGS} -o decode decodetest.cpp ${MODEL_OBJECTS} ${LDFLAGS}
+encodetest:encodetest.cpp arithmetic.hpp bitstream.hpp ${MODEL_FILES} ${MODEL_OBJECTS}
+	${CXX} ${CXXFLAGS} -o encodetest  $< ${MODEL_OBJECTS} ${LDFLAGS}
+
+acencode:acencode.cpp arithmetic.hpp bitstream.hpp ${MODEL_OBJECTS}  ${MODEL_FILES}
+	${CXX} ${CXXFLAGS} -o acencode  $< ${MODEL_OBJECTS} ${LDFLAGS}
+
+acdecode:acdecode.cpp arithmetic.hpp bitstream.hpp ${MODEL_OBJECTS}  ${MODEL_FILES}
+	${CXX} ${CXXFLAGS} -o acdecode $< ${MODEL_OBJECTS} ${LDFLAGS}
 	
+.PHONY: clean
 
 clean:
 	rm -f *.o
-	rm modeltest encode decode
+	rm modeltest acencode acdecode encodetest

@@ -4,6 +4,7 @@
 #include<istream>
 #include<ostream>
 
+// Set this to 1 to get ascii zeros and ones instead.
 #define DEBUG 0
 
 namespace ac{
@@ -46,7 +47,7 @@ namespace ac{
             (*out)<<"\n";
         }
         void write(bool bit,size_t count){
-            for(int i=0;i<count;i++)write(bit);
+            for(size_t i=0;i<count;i++)write(bit);
         }
         void flush(bool pad=0){
             while(offset)
@@ -102,7 +103,6 @@ namespace ac{
                 delete in;
         }
     };
-
 
 }
 #endif

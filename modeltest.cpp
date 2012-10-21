@@ -1,7 +1,5 @@
 #include"dummymodel.hpp"
-#include"triemodel.hpp"
 #include"countmodel.hpp"
-//#include"ann/annmodel.hpp"
 
 #include<stdlib.h>
 #include<iostream>
@@ -16,22 +14,28 @@ void modelTest(Model& dm){
     }
 }
 const int TEXTN = 10000;
+
 int main(){
     DummyModel dm;
     CountModel cm;
-    Model* models[3]={
+    Model* models[]={
         new DummyModel,
-        new CountModel,
-        new TrieModel
+        new CountModel
     };
+    const int MODELCOUNT = sizeof(models)/sizeof(models[0]);
     //AnnModel ann;
     for(int i=0;i<TEXTN;i++){
         std::cout<<i<<"/"<<TEXTN<<"\n";
         Symbol sym = rand()%Eof;
-        for(int j=0;j<3;j++)
+        for(int j=0;j<MODELCOUNT;j++)
         {
             models[j]->processSymbol(sym);
             modelTest(*models[j]);
         }
+    }
+    for(int j=0;j<MODELCOUNT;j++)
+    {
+        models[j]->processSymbol(Eof);
+        modelTest(*models[j]);
     }
 }
