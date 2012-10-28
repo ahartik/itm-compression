@@ -1,12 +1,14 @@
 #include"arithmetic.hpp"
 #include"dummymodel.hpp"
+#include"ppmmodel.hpp"
 #include"countmodel.hpp"
 #include<iostream>
 
 using namespace ac;
 int main(){
     //ModelPtr dummy(new DummyModel());
-    ModelPtr model(new CountModel());
+    //ModelPtr model(new CountModel());
+    ModelPtr model = createPPMModel();
     //ModelPtr model(new AnnModel());
     Decoder dec(model,&std::cin,false);
     //for(int i=0;i<3;i++){

@@ -1,11 +1,18 @@
 #include"arithmetic.hpp"
+#include"ppmmodel.hpp"
 #include"countmodel.hpp"
 #include<cstdlib>
 #include<fstream>
 #include<iostream>
 #include<sstream>
 
+using namespace std;
 using namespace ac;
+ModelPtr createModel()
+{
+    return createPPMModel();
+}
+
 int main(){
     const int N = 1<<16;
     unsigned char input[N];
@@ -14,23 +21,25 @@ int main(){
 
     //encoding part
     {
-        ModelPtr model(new CountModel());
+        ModelPtr model = createModel();
         std::ofstream fout(".encoded");
         Encoder enc(model,&fout,false);
         for(int i=0;i<N;i++)
         {
+            ProbPair pp = model->symbolRange(input[i]);
             enc.writeSymbol(input[i]);
-
         }
         enc.writeSymbol(Eof);
     }
+    cout<<"decode"<<"\n";
     //decoding part
     {
-        ModelPtr model(new CountModel());
+        ModelPtr model = createModel();
         std::ifstream fin(".encoded");
         Decoder dec(model,&fin,false);
         for(int i=0;i<N;i++)
         {
+            ProbPair pp = model->symbolRange(input[i]);
             Symbol sym = dec.readSymbol();
             assert(sym!=Eof);
             unsigned char c = sym;

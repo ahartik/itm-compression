@@ -6,7 +6,7 @@
 #include<tr1/memory>
 namespace ac{
     typedef uint32_t Prob;
-    typedef uint32_t Symbol;
+    typedef int16_t Symbol;
     const uint32_t ProbLen = 30;
     const uint64_t ProbMax = 1<<ProbLen;
     typedef std::pair<Prob,Prob> ProbPair;
