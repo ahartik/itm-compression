@@ -12,7 +12,7 @@ typedef struct
     uint8_t* data;
     int reserved;
     int di;
-    int offset; 
+    int offset;
 }aencoder;
 
 void aen_write_bit(aencoder* t,int bit)
@@ -119,7 +119,7 @@ int main()
         //printf("%f\n", (double)prob/totalprob);
         if (x0)
             aen_encode_range(&enc, prob, totalprob, totalprob);
-        else 
+        else
             aen_encode_range(&enc, 0, prob, totalprob);
     }
     aen_finish(&enc);

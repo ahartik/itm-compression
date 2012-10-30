@@ -1,5 +1,5 @@
 #define STDIN 0
-void readdata(int fd, char* out, int len);
+#include "read.h"
 #define N (100*1000)
 
 const uint32_t totalprob = 1073741824;
