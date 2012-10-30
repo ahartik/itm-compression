@@ -23,6 +23,32 @@ int ad_get_bit(adecoder* t)
     return r;
 }
 
+static inline uint64_t div_u64_rem(uint64_t dividend, uint32_t divisor, uint32_t *remainder)
+{
+        union {
+                uint64_t v64;
+                uint32_t v32[2];
+        } d = { dividend };
+        uint32_t upper;
+
+        upper = d.v32[1];
+        d.v32[1] = 0;
+        if (upper >= divisor) {
+                d.v32[1] = upper / divisor;
+                upper %= divisor;
+        }
+        asm ("divl %2" : "=a" (d.v32[0]), "=d" (*remainder) :
+                "rm" (divisor), "" (d.v32[0]), "1" (upper));
+        return d.v64;
+}
+
+static inline uint64_t do_div(uint64_t a,uint32_t b)
+{
+    uint32_t rem;
+    return div_u64_rem(a,b,&rem);
+}
+
+
 #define MSBMATCH(a,b) (((a)>>31) == ((b)>>31))
 #define IS_UNDERFLOW(l,u) (((l>>30)==1) && ((u>>30)==2))
 
@@ -86,9 +112,9 @@ uint32_t ad_read_prob(adecoder* dec, uint32_t total)
     unscaled = unscaled * total;
     unscaled --;
     if (range == 0)
-        unscaled >>= 32;
+        unscaled>>= 32;
     else
-        unscaled /= range;
+        unscaled = do_div(unscaled,range);
     return (uint32_t)unscaled;
 }
 
@@ -120,5 +146,7 @@ void _start()
         }
         ex1_output[t*2+1] = '\n';
     }
+    writedata(1, ex1_output, 2*EX1_DATA_LEN);
     //printf("%s", ex1_output);
+    asm ("mov $1, %eax;int $128;");
 }

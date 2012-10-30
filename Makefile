@@ -1,8 +1,9 @@
 
 default: encode extract
 
-CFLAGS=-Os -m32
-ECFLAGS=-Os -m32 -nostdlib
+CC=gcc
+CFLAGS=-Os -m32 -std=gnu99
+ECFLAGS=-Os -m32 -nostdlib -fwhole-program -flto  -std=gnu99 -s
 
 data.o: ex1_data.bin data.asm encode
 	./encode
@@ -15,7 +16,13 @@ read.o: read.asm
 	nasm -f elf read.asm
 
 extract: extract.c read.o data.o data.h
-	c99 ${ECFLAGS} extract.c read.o data.o  -o $@
+	${CC} ${ECFLAGS} extract.c read.o data.o  -o $@
+	strip extract
 
 encode: encode.c read.o
-	c99 ${CFLAGS} encode.c read.o -o $@
+	${CC} ${CFLAGS} encode.c read.o -o $@
+
+clean:
+	rm *.o
+	rm extract
+	rm encode
