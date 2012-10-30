@@ -147,6 +147,6 @@ void _start()
         ex1_output[t*2+1] = '\n';
     }
     writedata(1, ex1_output, 2*EX1_DATA_LEN);
-    //printf("%s", ex1_output);
-    asm ("mov $1, %eax;int $128;");
+    //exit 
+    asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");
 }
