@@ -1,5 +1,5 @@
 
-default: encode extract
+default: encode extract run
 
 CC=gcc
 CFLAGS=-Os -m32 -std=gnu99
@@ -21,6 +21,13 @@ extract: extract.c read.o data.o data.h
 
 encode: encode.c read.o
 	${CC} ${CFLAGS} encode.c read.o -o $@
+
+run: extract unpack.header
+	7z a -tGZip -mx=9 $<.gz $<
+	cat unpack.header $<.gz > $@
+	rm $<.gz
+	chmod +rx $@
+	du -b $@
 
 clean:
 	rm *.o
