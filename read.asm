@@ -3,8 +3,7 @@ BITS 32
 global	call4
 section .text
 
-; int open(
-open
+; int open(const char* path, int flag, int mode)
 
 call4:
 	mov	eax,[esp+4]

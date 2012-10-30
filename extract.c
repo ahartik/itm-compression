@@ -1,5 +1,18 @@
-
 #include<stdint.h>
+#define O_ACCMODE	   0003
+#define O_RDONLY	     00
+#define O_WRONLY	     01
+#define O_RDWR		     02
+#define O_CREAT		   0100	/* not fcntl */
+#define O_EXCL		   0200	/* not fcntl */
+#define O_NOCTTY	   0400	/* not fcntl */
+#define O_TRUNC		  01000	/* not fcntl */
+#define O_APPEND	  02000
+#define O_NONBLOCK	  04000
+#define O_NDELAY	O_NONBLOCK
+#define O_SYNC	       04010000
+#define O_FSYNC		 O_SYNC
+#define O_ASYNC		 020000
 
 
 typedef struct
@@ -127,9 +140,10 @@ void _start()
 {
     adecoder dec;
     ad_init(&dec, ex1_encoded);
+    int in = openfile("ex1_side.dat",O_RDONLY,0);
     for(int t = 0; t < EX1_DATA_LEN; t++)
     {
-        uint32_t prob = nextProb();
+        uint32_t prob = nextProb(in);
         uint32_t p = ad_read_prob(&dec, totalprob);
         //printf("%f %f\n", (double)prob/totalprob, (double)p/totalprob);
         if (p >= prob)
@@ -146,7 +160,9 @@ void _start()
         }
         ex1_output[t*2+1] = '\n';
     }
-    writedata(1, ex1_output, 2*EX1_DATA_LEN);
+
+    int out = openfile("x/ex1_class.dat",O_WRONLY|O_TRUNC|O_CREAT, 0644);
+    writedata(out, ex1_output, 2*EX1_DATA_LEN);
     //exit 
     asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");
 }

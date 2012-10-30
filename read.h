@@ -1,6 +1,6 @@
 #pragma once
 
-void call4(int a, int b, int c, int d);
+int call4(int a, int b, int c, int d);
 #define mkcall4(a,b,c,d) call4((int)a, (int)b, (int)c, (int)d)
 
 #define readdata(fd,buf,len) mkcall4(3,fd,buf,len)
