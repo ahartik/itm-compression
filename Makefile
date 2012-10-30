@@ -1,9 +1,9 @@
 
-default: encode extract run
+default: encode extract c.tar.gz
 
 CC=gcc
 CFLAGS=-Os -m32 -std=gnu99
-ECFLAGS=-Os -m32 -nostdlib -fwhole-program -std=gnu99  -flto 
+ECFLAGS=-Os -m32 -nostdlib -fwhole-program -std=gnu99  -flto
 
 data.o: ex1_data.bin data.asm encode
 	./encode
@@ -15,21 +15,28 @@ ex1_data.bin: encode
 read.o: read.asm
 	nasm -f elf read.asm
 
-extract: extract.c read.o data.o data.h
+extract: extract.c read.o data.o data.h model.c
 	${CC} ${ECFLAGS} extract.c read.o data.o  -o $@
 	strip extract
 
 extract.s: extract.c read.o data.o data.h
-	${CC} ${ECFLAGS} extract.c  -S 
+	${CC} ${ECFLAGS} extract.c  -S
 
 encode: encode.c read.o
 	${CC} ${CFLAGS} encode.c read.o -o $@
 
-run: extract unpack.header
-	7z a -tGZip -mx=9 $<.gz $<
-	cat unpack.header $<.gz > $@
-	rm $<.gz
-	chmod +rx $@
+#run: extract unpack.header
+#	7z a -tGZip -mx=9 $<.gz $<
+#	cat unpack.header $<.gz > $@
+#	rm $<.gz
+#	chmod +rx $@
+#	du -b $@
+c.tar.gz: extract
+	rm -rf c
+	mkdir -p c
+	cp $< c/run
+	tar -cvvf c.tar c
+	7z a -tGZip -mx=9 c.tar.gz c.tar
 	du -b $@
 
 clean:

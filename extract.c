@@ -152,7 +152,7 @@ void _start()
             ex1_output[t*2] = '1';
             ad_apply_range(&dec, prob, totalprob, totalprob);
         }
-        else 
+        else
         {
             //puts("0");
             ex1_output[t*2] = '0';
@@ -161,8 +161,8 @@ void _start()
         ex1_output[t*2+1] = '\n';
     }
 
-    int out = openfile("x/ex1_class.dat",O_WRONLY|O_TRUNC|O_CREAT, 0644);
+    int out = openfile("c/ex1_class.dat",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(out, ex1_output, 2*EX1_DATA_LEN);
-    //exit 
+    //exit
     asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");
 }
