@@ -13,11 +13,11 @@ ex1_data.bin: encode
 read.o: read.asm
 	nasm -f elf $<
 
-extract: extract.c read.o data.o data.h model.c
-	${CC} ${ECFLAGS} extract.c read.o data.o  -o $@
+extract: extract.c data.o data.h model.c read.h
+	${CC} ${ECFLAGS} extract.c data.o  -o $@
 	strip extract
 
-extract.s: extract.c read.o data.o data.h
+extract.s: extract.c data.h
 	${CC} ${ECFLAGS} extract.c  -S
 
 encode: encode.c read.o
