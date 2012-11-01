@@ -20,8 +20,8 @@ extract: extract.c data.o data.h model.c read.h
 extract.s: extract.c data.h
 	${CC} ${ECFLAGS} extract.c  -S
 
-encode: encode.c read.o
-	${CC} ${CFLAGS} encode.c read.o -o $@
+encode: encode.c
+	${CC} ${CFLAGS} encode.c -o $@
 
 #run: extract unpack.header
 #	7z a -tGZip -mx=9 $<.gz $<
