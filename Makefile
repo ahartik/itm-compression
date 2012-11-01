@@ -1,19 +1,17 @@
-
 default: encode extract c.tar.gz
 
 CC=gcc
 CFLAGS=-Os -m32 -std=gnu99
 ECFLAGS=-Os -m32 -nostdlib -fwhole-program -std=gnu99  -flto
 
-data.o: ex1_data.bin data.asm encode
-	./encode
-	nasm data.asm -f elf
+data.o: data.asm ex1_data.bin
+	nasm $< -f elf
 
 ex1_data.bin: encode
 	./encode
 
 read.o: read.asm
-	nasm -f elf read.asm
+	nasm -f elf $<
 
 extract: extract.c read.o data.o data.h model.c
 	${CC} ${ECFLAGS} extract.c read.o data.o  -o $@
