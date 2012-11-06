@@ -1,5 +1,6 @@
 
 #pragma once
+#include<iostream>
 
 #include <cmath>
 
@@ -7,6 +8,7 @@ typedef long double ld;
 
 ld cdf(ld x,ld d)
 {
+    std::cout<<"cdf "<<x/sqrt(d)<<" "<<x<<" "<<d<<"\n";
     return 0.5*(1+std::erf(x/sqrt(2*d)));
 }
 

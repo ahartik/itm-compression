@@ -69,6 +69,17 @@ $x_1$ & $x_2$ & $x_3$ & $x_4$ & $P(x_0 = 0)$ & $P(x_0 = 1) $ \\ \hline
 \caption{Conditional probabilities used in exercise 1}
 \end{figure}
 
+\section{Problem 2}
+
+The second task statement was to compress four sequences of stocks prices over 100122 days.
+
+The file had $10122 \times 4 = 40488$ prices with the precision of one cent (2 decimals).
+All prices were under \$40 so they can be stored as 16-bit integers.
+This gives total size of about 81~KiB.
+
+Our first idea to compress the data was to use arithmetic coding and always write the difference to the last days price.
+Probabilities of different 
+
 \section{Optimizing the executable size}
 
 As the goal was to minimize total package size, we decided to use C to have as small binary size as possible.
