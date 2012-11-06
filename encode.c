@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include<assert.h>
 
 typedef struct
 {
@@ -98,8 +99,8 @@ void aen_finish(aencoder* enc)
 }
 
 #include"model.c"
-int main()
-{
+
+void ex1_encode() {
     aencoder enc;
     aen_init(&enc);
     FILE* side = fopen("ex1_side.dat","r");
@@ -116,16 +117,69 @@ int main()
             r += data[i]<<i;
         }
         prob = cprobs[r];
-        //printf("%f\n", (double)prob/totalprob);
+        //printf("%f\n", (double)prob/TOTALPROB);
         if (x0)
-            aen_encode_range(&enc, prob, totalprob, totalprob);
+            aen_encode_range(&enc, prob, TOTALPROB, TOTALPROB);
         else
-            aen_encode_range(&enc, 0, prob, totalprob);
+            aen_encode_range(&enc, 0, prob, TOTALPROB);
     }
     aen_finish(&enc);
     FILE* fout = fopen("ex1_data.bin", "w");
     fwrite(enc.data, 1, enc.di, fout);
     printf("wrote %u bytes\n", enc.di);
     fclose(fout);
+}
+#include "model2.c"
+#define MAXR 200000
+int mat[MAXR][4];
+void ex2_encode() {
+    FILE* f = fopen("ex2.csv","r");
+	assert(f);
+	int i=0;
+	while(!feof(f)) {
+		int a,b,c,d;
+		fscanf(f, "%d,%d,%d,%d\n", &a,&b,&c,&d);
+		if (feof(f)) break;
+		mat[i][0] = a;
+		mat[i][1] = b;
+		mat[i][2] = c;
+		mat[i][3] = d;
+		++i;
+	}
+	int total=i;
+//	printf("read %d\n", total);
+
+	int tout=0;
+	for(int a=0; a<4; ++a) {
+		aencoder enc;
+		aen_init(&enc);
+		double prev = mat[a][0];
+		double var = 0.001;
+		for(i=1; i<total; ++i) {
+			uint32_t v = mat[a][i];
+			uint32_t low = sym2prob(v, prev, var);
+			uint32_t hi = sym2prob(v+1, prev, var);
+//			printf("range %u %u\n", low, hi);
+			aen_encode_range(&enc, low, hi, TOTALPROB);
+			double dx = v-prev;
+			var = (5*var + dx*dx)/6;
+			prev = v;
+		}
+		aen_finish(&enc);
+		char fname[32];
+		sprintf(fname, "ex2_%d.bin", a);
+		FILE* fout = fopen(fname, "w");
+		fwrite(enc.data, 1, enc.di, fout);
+		printf("wrote %u bytes\n", enc.di);
+		fclose(fout);
+		tout += enc.di;
+	}
+	printf("total output size: %d\n", tout);
+}
+
+int main()
+{
+	ex1_encode();
+	ex2_encode();
 }
 

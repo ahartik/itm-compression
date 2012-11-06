@@ -145,13 +145,13 @@ void _start()
     for(int t = 0; t < EX1_DATA_LEN; t++)
     {
         uint32_t prob = nextProb(in);
-        uint32_t p = ad_read_prob(&dec, totalprob);
-        //printf("%f %f\n", (double)prob/totalprob, (double)p/totalprob);
+        uint32_t p = ad_read_prob(&dec, TOTALPROB);
+        //printf("%f %f\n", (double)prob/TOTALPROB, (double)p/TOTALPROB);
         uint32_t l,u;
         char out;
-        if (p>=prob) l=prob, u=totalprob, out='1';
+        if (p>=prob) l=prob, u=TOTALPROB, out='1';
         else l=0, u=prob, out='0';
-        ad_apply_range(&dec, l, u, totalprob);
+        ad_apply_range(&dec, l, u, TOTALPROB);
         *outs++ = out;
         *outs++ = '\n';
     }
