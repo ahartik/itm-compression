@@ -80,10 +80,48 @@ This gives total size of about 81~KiB.
 Our first idea to compress the data was to use arithmetic coding and always write the difference to the last days price.
 Probabilities of different 
 
+\subsection {More complicated models}
+We also tried fitting more complicated models to the data.
+Simple polynomial fits gave significantly worse results than the first model.
+Theoretical results using different polynomials can be seen in Figure \ref{ex2_polys}.
+
+Next model was discrete cosine transform. This seemed to fit 
+
+\begin{figure}
+\label{ex2_polys}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+    Degree of polynomial & Code length in bits\\ \hline
+    0      & 126663 \\  \hline
+    1      & 123691 \\ \hline
+    2      & 123563 \\ \hline
+    3      & 120854 \\ \hline
+    4      & 120852 \\ \hline
+    5      & 120100 \\ \hline
+    6      & 120131 \\ \hline
+    30      & 114236 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Code length of first stock using polynomial model}
+\end{figure}
+
+
+\begin{enumerate}
+\item Polynomial fit
+Didn't work.
+\item Discrete cosine transform
+Didn't work either.
+
+\end{enumerate}
+
 \section{Optimizing the executable size}
 
 As the goal was to minimize total package size, we decided to use C to have as small binary size as possible.
 On linux linking to the standard library increases binary size quite a lot, so we avoided using it and implemented input and output in Assembly with system calls instead.
+
+
+
 
 %\bibliographystyle{abbrv}\bibliography{ref}
 

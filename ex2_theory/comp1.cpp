@@ -50,20 +50,20 @@ int main()
         ld codelen = 16;
         ld mc = 0;
         ld tp = 0;
+        int learn = 10;
         for(long long i=1;i<stock.size();i++)
         {
             ld poly = a0+a1*i+a2*i*i+a3*i*i*i+a4*i*i*i*i+a5*i*i*i*i*i;
-            poly = poly;
             ld scaled = stock[i];
-            ld change = scaled-last;//abs((last)-scaled);
+            ld change =poly + scaled-last;//abs((last)-scaled);
             ld up = cdf(change+slice,var);
             ld down = cdf(change,var);
             ld p = up - down;
             p = pf*p+pa;
-            cout<<down<<" - "<<up<<"\tp = "<<p<<" "<<var<<"\n",
+            //cout<<down<<" - "<<up<<"\tp = "<<p<<" "<<var<<"\n",
             mc = std::max(change,mc);
             last = scaled;
-            var = (var*5.0+change*change)/6;
+            var = (var*learn+change*change)/(learn+1);
             tp+=p;
             codelen += -log2(p);
         }
