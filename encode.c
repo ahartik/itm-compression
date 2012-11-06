@@ -154,12 +154,12 @@ void ex2_encode() {
 		aencoder enc;
 		aen_init(&enc);
 		double prev = mat[a][0];
-		double var = 0.001;
+		double var = 1;
 		for(i=1; i<total; ++i) {
 			uint32_t v = mat[a][i];
 			uint32_t low = sym2prob(v, prev, var);
 			uint32_t hi = sym2prob(v+1, prev, var);
-//			printf("range %u %u\n", low, hi);
+			printf("range %f %f\n", (double)low/TOTALPROB, (double)hi/TOTALPROB);
 			aen_encode_range(&enc, low, hi, TOTALPROB);
 			double dx = v-prev;
 			var = (5*var + dx*dx)/6;

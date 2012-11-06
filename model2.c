@@ -8,7 +8,7 @@ static inline double cdf(double x) {
 
 static inline uint32_t sym2prob(uint32_t sym, double mid, double var) {
 	const double fac = TOTALPROB - MAX_VALUE;
-	return sym + fac * cdf((sym-mid)/var);
+	return sym + fac * cdf((sym-mid)/sqrt(var));
 }
 static inline uint32_t prob2sym(uint32_t prob, double m, double var) {
 	uint32_t low=0, hi=MAX_VALUE+1;
