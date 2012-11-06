@@ -1,4 +1,5 @@
 #include<stdint.h>
+#include"model.h"
 #define O_ACCMODE      0003
 #define O_RDONLY         00
 #define O_WRONLY         01
@@ -111,8 +112,8 @@ void ad_read_bits(adecoder* dec)
 void ad_apply_range(adecoder* dec,uint32_t l,uint32_t u,uint32_t total)
 {
     uint64_t range = (uint64_t)(dec->upper) - dec->lower+1;
-    uint64_t scaled_low = (l * range) / total;
-    uint64_t scaled_up = (u * range) / total;
+    uint64_t scaled_low = (l * range) / TOTALPROB;
+    uint64_t scaled_up = (u * range) / TOTALPROB;
     dec->upper = dec->lower + scaled_up - 1;
     dec->lower = dec->lower + scaled_low;
     ad_read_bits(dec);
@@ -136,7 +137,7 @@ uint32_t ad_read_prob(adecoder* dec, uint32_t total)
 
 char ex1_output[2*EX1_DATA_LEN];
 
-void _start()
+void ex1_extract()
 {
     adecoder dec;
     ad_init(&dec, ex1_encoded);
@@ -145,19 +146,71 @@ void _start()
     for(int t = 0; t < EX1_DATA_LEN; t++)
     {
         uint32_t prob = nextProb(in);
-        uint32_t p = ad_read_prob(&dec, totalprob);
-        //printf("%f %f\n", (double)prob/totalprob, (double)p/totalprob);
+        uint32_t p = ad_read_prob(&dec, TOTALPROB);
+        //printf("%f %f\n", (double)prob/TOTALPROB, (double)p/TOTALPROB);
         uint32_t l,u;
         char out;
-        if (p>=prob) l=prob, u=totalprob, out='1';
+        if (p>=prob) l=prob, u=TOTALPROB, out='1';
         else l=0, u=prob, out='0';
-        ad_apply_range(&dec, l, u, totalprob);
+        ad_apply_range(&dec, l, u, TOTALPROB);
         *outs++ = out;
         *outs++ = '\n';
     }
 
     int out = openfile("c/ex1_class.dat",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(out, ex1_output, 2*EX1_DATA_LEN);
+}
+#include "model2.c"
+uint32_t ex2_res[4*EX2_ROWS];
+char ex2_output[EX2_ROWS * 100];
+char* output;
+void printrec(int x, int s) {
+    if (x==0) return;
+    printrec(x/10, s+1);
+    *output++ = '0'+x%10;
+    if (s==2) *output++ = '.';
+}
+void printval(int x) {
+    printrec(x,0);
+}
+void ex2_extract()
+{
+    adecoder dec;
+    ad_init(&dec, ex2_encoded);
+    double prev = 5225;
+    ld var = 100;
+    const int learn = LEARN_RATE;
+    ex2_res[0] = prev;
+    for(int t = 1; t < 4*EX2_ROWS; t++)
+    {
+        uint32_t p = ad_read_prob(&dec, TOTALPROB);
+        uint32_t s = prob2sym(p, prev, var);
+        uint32_t low = sym2prob(s, prev, var);
+        uint32_t hi = sym2prob(s+1, prev, var);
+        ad_apply_range(&dec, low, hi, TOTALPROB);
+        ex2_res[t] = s;
+
+        double dx = s - prev;
+        var = (learn*var + dx*dx) / (learn+1);
+        prev = s;
+    }
+    output = ex2_output;
+    for(int i=0; i<EX2_ROWS; ++i) {
+        for(int j=0; j<4; ++j) {
+            int v = ex2_res[i+j*EX2_ROWS];
+            printval(v);
+            *output++ = ',';
+        }
+        output[-1] = 10;
+    }
+
+    int outf = openfile("c/four_stocks.csv",O_WRONLY|O_TRUNC|O_CREAT, 0644);
+    writedata(outf, ex2_output, (int)(output-ex2_output));
+}
+void _start()
+{
+    ex1_extract();
+    ex2_extract();
     //exit
     asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");
 }

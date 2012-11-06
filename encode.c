@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include<assert.h>
 
 typedef struct
 {
@@ -98,8 +99,8 @@ void aen_finish(aencoder* enc)
 }
 
 #include"model.c"
-int main()
-{
+
+void ex1_encode() {
     aencoder enc;
     aen_init(&enc);
     FILE* side = fopen("ex1_side.dat","r");
@@ -116,16 +117,71 @@ int main()
             r += data[i]<<i;
         }
         prob = cprobs[r];
-        //printf("%f\n", (double)prob/totalprob);
+        //printf("%f\n", (double)prob/TOTALPROB);
         if (x0)
-            aen_encode_range(&enc, prob, totalprob, totalprob);
+            aen_encode_range(&enc, prob, TOTALPROB, TOTALPROB);
         else
-            aen_encode_range(&enc, 0, prob, totalprob);
+            aen_encode_range(&enc, 0, prob, TOTALPROB);
     }
     aen_finish(&enc);
     FILE* fout = fopen("ex1_data.bin", "w");
     fwrite(enc.data, 1, enc.di, fout);
     printf("wrote %u bytes\n", enc.di);
     fclose(fout);
+}
+#include "model2.c"
+#define MAXR 200000
+int mat[MAXR][4];
+void ex2_encode() {
+    FILE* f = fopen("ex2_data.csv","r");
+    assert(f);
+    int i=0;
+    while(!feof(f)) {
+        int a,b,c,d;
+        fscanf(f, "%d,%d,%d,%d\n", &a,&b,&c,&d);
+        mat[i][0] = a;
+        mat[i][1] = b;
+        mat[i][2] = c;
+        mat[i][3] = d;
+        ++i;
+    }
+    int total=i;
+//  printf("read %d\n", total);
+    for (uint32_t c = 0; c < MAX_VALUE; c++)
+    {
+        uint32_t p = sym2prob(c,5225,100);
+        uint32_t p2 = sym2prob(c+1,5225,100);
+        assert(prob2sym(p,5225,100)==c);
+        assert(prob2sym(p2-1,5225,100)==c);
+    }
+
+    aencoder enc;
+    aen_init(&enc);
+    double prev = mat[0][0];
+    ld var = 100;
+    const int learn = LEARN_RATE;
+    for(int a=0; a<4; ++a) {
+        for(i=a==0; i<total; ++i) {
+            uint32_t v = mat[i][a];
+            uint32_t low = sym2prob(v, prev, var);
+            uint32_t hi = sym2prob(v+1, prev, var);
+//            printf("range %f %f : %f\n", (double)low/TOTALPROB, (double)hi/TOTALPROB, (hi-low)/(double)TOTALPROB);
+            aen_encode_range(&enc, low, hi, TOTALPROB);
+            double dx = v-prev;
+            var = (learn*var + dx*dx)/(learn+1);
+            prev = v;
+        }
+    }
+    aen_finish(&enc);
+    FILE* fout = fopen("ex2_data.bin", "w");
+    fwrite(enc.data, 1, enc.di, fout);
+    printf("wrote %u bytes\n", enc.di);
+    fclose(fout);
+}
+
+int main()
+{
+    ex1_encode();
+    ex2_encode();
 }
 
