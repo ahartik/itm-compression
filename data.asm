@@ -4,3 +4,5 @@ section .text
 
 ex1_encoded:
     incbin "ex1_data.bin"
+ex2_encoded:
+    incbin "ex2_data.bin"

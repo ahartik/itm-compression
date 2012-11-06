@@ -133,53 +133,48 @@ void ex1_encode() {
 #define MAXR 200000
 int mat[MAXR][4];
 void ex2_encode() {
-    FILE* f = fopen("ex2.csv","r");
-	assert(f);
-	int i=0;
-	while(!feof(f)) {
-		int a,b,c,d;
-		fscanf(f, "%d,%d,%d,%d\n", &a,&b,&c,&d);
-		if (feof(f)) break;
-		mat[i][0] = a;
-		mat[i][1] = b;
-		mat[i][2] = c;
-		mat[i][3] = d;
-		++i;
-	}
-	int total=i;
-//	printf("read %d\n", total);
+    FILE* f = fopen("ex2_data.csv","r");
+    assert(f);
+    int i=0;
+    while(!feof(f)) {
+        int a,b,c,d;
+        fscanf(f, "%d,%d,%d,%d\n", &a,&b,&c,&d);
+        if (feof(f)) break;
+        mat[i][0] = a;
+        mat[i][1] = b;
+        mat[i][2] = c;
+        mat[i][3] = d;
+        ++i;
+    }
+    int total=i;
+//  printf("read %d\n", total);
 
-	int tout=0;
-	for(int a=0; a<4; ++a) {
-		aencoder enc;
-		aen_init(&enc);
-		double prev = mat[a][0];
-		double var = 1;
-		for(i=1; i<total; ++i) {
-			uint32_t v = mat[a][i];
-			uint32_t low = sym2prob(v, prev, var);
-			uint32_t hi = sym2prob(v+1, prev, var);
-			printf("range %f %f\n", (double)low/TOTALPROB, (double)hi/TOTALPROB);
-			aen_encode_range(&enc, low, hi, TOTALPROB);
-			double dx = v-prev;
-			var = (5*var + dx*dx)/6;
-			prev = v;
-		}
-		aen_finish(&enc);
-		char fname[32];
-		sprintf(fname, "ex2_%d.bin", a);
-		FILE* fout = fopen(fname, "w");
-		fwrite(enc.data, 1, enc.di, fout);
-		printf("wrote %u bytes\n", enc.di);
-		fclose(fout);
-		tout += enc.di;
-	}
-	printf("total output size: %d\n", tout);
+    aencoder enc;
+    aen_init(&enc);
+    double prev = mat[0][0];
+    double var = 1;
+    for(int a=0; a<4; ++a) {
+        for(i=1; i<total; ++i) {
+            uint32_t v = mat[a][i];
+            uint32_t low = sym2prob(v, prev, var);
+            uint32_t hi = sym2prob(v+1, prev, var);
+//            printf("range %f %f\n", (double)low/TOTALPROB, (double)hi/TOTALPROB);
+            aen_encode_range(&enc, low, hi, TOTALPROB);
+            double dx = v-prev;
+            var = (5*var + dx*dx)/6;
+            prev = v;
+        }
+    }
+    aen_finish(&enc);
+    FILE* fout = fopen("ex2_data.bin", "w");
+    fwrite(enc.data, 1, enc.di, fout);
+    printf("wrote %u bytes\n", enc.di);
+    fclose(fout);
 }
 
 int main()
 {
-	ex1_encode();
-	ex2_encode();
+    ex1_encode();
+    ex2_encode();
 }
 

@@ -136,7 +136,7 @@ uint32_t ad_read_prob(adecoder* dec, uint32_t total)
 
 char ex1_output[2*EX1_DATA_LEN];
 
-void _start()
+void ex1_extract()
 {
     adecoder dec;
     ad_init(&dec, ex1_encoded);
@@ -158,6 +158,34 @@ void _start()
 
     int out = openfile("c/ex1_class.dat",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(out, ex1_output, 2*EX1_DATA_LEN);
+}
+void ex2_extract()
+{
+#if 0
+    adecoder dec;
+    ad_init(&dec, ex1_encoded);
+    char* outs = ex1_output;
+    for(int t = 0; t < EX1_DATA_LEN; t++)
+    {
+        uint32_t p = ad_read_prob(&dec, TOTALPROB);
+        //printf("%f %f\n", (double)prob/TOTALPROB, (double)p/TOTALPROB);
+        uint32_t l,u;
+        char out;
+        if (p>=prob) l=prob, u=TOTALPROB, out='1';
+        else l=0, u=prob, out='0';
+        ad_apply_range(&dec, l, u, TOTALPROB);
+        *outs++ = out;
+        *outs++ = '\n';
+    }
+
+    int out = openfile("c/ex1_class.dat",O_WRONLY|O_TRUNC|O_CREAT, 0644);
+    writedata(out, ex1_output, 2*EX1_DATA_LEN);
+#endif
+}
+void _start()
+{
+    ex1_extract();
+    ex2_extract();
     //exit
     asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");
 }
