@@ -152,16 +152,17 @@ void ex2_encode() {
     aencoder enc;
     aen_init(&enc);
     double prev = mat[0][0];
-    double var = 1;
+    ld var = 100;
+    const int learn = 5;
     for(int a=0; a<4; ++a) {
         for(i=1; i<total; ++i) {
-            uint32_t v = mat[a][i];
+            uint32_t v = mat[i][a];
             uint32_t low = sym2prob(v, prev, var);
             uint32_t hi = sym2prob(v+1, prev, var);
-//            printf("range %f %f\n", (double)low/TOTALPROB, (double)hi/TOTALPROB);
+//            printf("range %f %f : %f\n", (double)low/TOTALPROB, (double)hi/TOTALPROB, (hi-low)/(double)TOTALPROB);
             aen_encode_range(&enc, low, hi, TOTALPROB);
             double dx = v-prev;
-            var = (5*var + dx*dx)/6;
+            var = (learn*var + dx*dx)/(learn+1);
             prev = v;
         }
     }
