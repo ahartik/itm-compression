@@ -159,7 +159,7 @@ void ex2_encode() {
     aen_init(&enc);
     double prev = mat[0][0];
     ld var = 100;
-    const int learn = 5;
+    const int learn = LEARN_RATE;
     for(int a=0; a<4; ++a) {
         for(i=a==0; i<total; ++i) {
             uint32_t v = mat[i][a];

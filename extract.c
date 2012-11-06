@@ -179,7 +179,7 @@ void ex2_extract()
     ad_init(&dec, ex2_encoded);
     double prev = 5225;
     ld var = 100;
-    const int learn = 5;
+    const int learn = LEARN_RATE;
     ex2_res[0] = prev;
     for(int t = 1; t < 4*EX2_ROWS; t++)
     {
