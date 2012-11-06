@@ -14,7 +14,7 @@ read.o: read.asm
 	nasm -f elf $<
 
 extract: extract.c data.o data.h model.c read.h
-	${CC} ${ECFLAGS} extract.c data.o  -o $@
+	${CC} ${ECFLAGS} extract.c data.o  -o $@ -lm
 	strip extract
 
 extract.s: extract.c data.h

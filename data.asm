@@ -1,5 +1,5 @@
 BITS 32
-global ex1_encoded
+global ex1_encoded,ex2_encoded
 section .text
 
 ex1_encoded:

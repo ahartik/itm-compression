@@ -15,7 +15,7 @@ static inline uint32_t sym2prob(uint32_t sym, double mid, ld var) {
 static inline uint32_t prob2sym(uint32_t prob, double m, ld var) {
     uint32_t low=0, hi=MAX_VALUE+1;
     while(hi-low>1) {
-        int mid = (low+hi)>>1;
+        uint32_t mid = (low+hi)>>1;
         if (sym2prob(mid, m, var) <= prob) {
             low = mid;
         } else {

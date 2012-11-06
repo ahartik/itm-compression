@@ -139,7 +139,6 @@ void ex2_encode() {
     while(!feof(f)) {
         int a,b,c,d;
         fscanf(f, "%d,%d,%d,%d\n", &a,&b,&c,&d);
-        if (feof(f)) break;
         mat[i][0] = a;
         mat[i][1] = b;
         mat[i][2] = c;
@@ -148,6 +147,13 @@ void ex2_encode() {
     }
     int total=i;
 //  printf("read %d\n", total);
+    for (uint32_t c = 0; c < MAX_VALUE; c++)
+    {
+        uint32_t p = sym2prob(c,5225,100);
+        uint32_t p2 = sym2prob(c+1,5225,100);
+        assert(prob2sym(p,5225,100)==c);
+        assert(prob2sym(p2-1,5225,100)==c);
+    }
 
     aencoder enc;
     aen_init(&enc);
@@ -155,7 +161,7 @@ void ex2_encode() {
     ld var = 100;
     const int learn = 5;
     for(int a=0; a<4; ++a) {
-        for(i=1; i<total; ++i) {
+        for(i=a==0; i<total; ++i) {
             uint32_t v = mat[i][a];
             uint32_t low = sym2prob(v, prev, var);
             uint32_t hi = sym2prob(v+1, prev, var);
