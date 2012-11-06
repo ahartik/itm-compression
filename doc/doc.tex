@@ -43,7 +43,6 @@ According to probabilities in Figure~\ref{ex1_probs}, the total entropy of the i
 
 
 \begin{figure}
-\label{ex1_probs}
 
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|}
@@ -68,11 +67,16 @@ $x_1$ & $x_2$ & $x_3$ & $x_4$ & $P(x_0 = 0)$ & $P(x_0 = 1) $ \\ \hline
 \end{tabular}
 \end{center}
 \caption{Conditional probabilities used in exercise 1}
+\label{ex1_probs}
 \end{figure}
 
 \section*{Problem 2}
 
-The second task was to compress data consisting of stock prices of four different stocks. The data consisted of floating point values with two decimals. As we didn't want to think about floating point accuracy issues, we simply converted the initial data to integers by multiplying the values by 100 and divided our final result again by 100 before outputting it.
+The second task was to compress data consisting of stock prices of four different stocks over 10121 days. The data consisted of floating point values with two decimals. As we didn't want to think about floating point accuracy issues, we simply converted the initial data to integers by multiplying the values by 100 and divided our final result again by 100 before outputting it.
+
+All prices were under \$40 so they can be stored as 16-bit integers.
+This gives total size of about 81~KiB.
+
 
 To find a good compression scheme, we initially tried plotting the data, as shown in Figure~\ref{fig:ex2o}.
 As there was no immedient regularity to be seen, we tried seeing how the values change by taking the differences of adjacent values, shown in Figure~\ref{fig:ex2d}.
@@ -99,10 +103,48 @@ To fix this, we added a constant $2^{-30}$ to probabilities of all values and sc
 As the largest number in the data (after converting to integers) was 45100, we only needed to add the constant to first 45101 integers, and scale the original probabilities by $\frac{2^{30}-45101}{2^{30}} \approx 0.999953$.
 This factor is so close to 1 that it doesn't hinder the overall compression quality much, while adding the constant guarantees that any value can be encoded using no more than 30 bits.
 
+\subsection {More complicated models}
+We also tried fitting more complicated models to the data.
+Simple polynomial fits gave significantly worse results than the first model.
+Theoretical results using different polynomials can be seen in Figure \ref{ex2_polys}.
+
+Next model was discrete cosine transform. This seemed to fit 
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+    Degree of polynomial & Code length in bits\\ \hline
+    0      & 126663 \\  \hline
+    1      & 123691 \\ \hline
+    2      & 123563 \\ \hline
+    3      & 120854 \\ \hline
+    4      & 120852 \\ \hline
+    5      & 120100 \\ \hline
+    6      & 120131 \\ \hline
+    30      & 114236 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Code length of first stock using polynomial model}
+\label{ex2_polys}
+\end{figure}
+
+
+\begin{enumerate}
+\item Polynomial fit
+Didn't work.
+\item Discrete cosine transform
+Didn't work either.
+
+\end{enumerate}
+
 \section{Optimizing the executable size}
 
 As the goal was to minimize total package size, we decided to use C to have as small binary size as possible.
 On linux linking to the standard library increases binary size quite a lot, so we avoided using it and implemented input and output in Assembly with system calls instead.
+
+
+
 
 %\bibliographystyle{abbrv}\bibliography{ref}
 
