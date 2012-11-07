@@ -7,6 +7,8 @@ static inline long double cdf(ld x) {
 }
 #define MAX_VALUE 50000
 #define LEARN_RATE 10
+#define LOW_LEARN_RATE 1
+#define START_VALUE 5225
 
 static inline uint32_t sym2prob(uint32_t sym, double mid, ld var) {
     const long double fac = TOTALPROB - MAX_VALUE;

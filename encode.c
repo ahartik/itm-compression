@@ -132,19 +132,24 @@ void ex1_encode() {
 #include "model2.c"
 #define MAXR 200000
 int mat[MAXR][4];
+int lmat[MAXR][4];
 void ex2_encode() {
-    FILE* f = fopen("ex2_data.csv","r");
+    FILE* f = fopen("four-stocks.csv","r");
     assert(f);
     int i=0;
     while(!feof(f)) {
-        int a,b,c,d;
-        fscanf(f, "%d,%d,%d,%d\n", &a,&b,&c,&d);
-        mat[i][0] = a;
-        mat[i][1] = b;
-        mat[i][2] = c;
-        mat[i][3] = d;
+        for(int j=0; j<4; ++j) {
+            int low,hi;
+            fscanf(f, "%d.%d", &hi,&low);
+            if (feof(f)) goto doneread;
+            fgetc(f);
+//            mat[i][j] = low+100*hi;
+            mat[i][j] = hi;
+            lmat[i][j] = low;
+        }
         ++i;
     }
+doneread:;
     int total=i;
 //  printf("read %d\n", total);
     for (uint32_t c = 0; c < MAX_VALUE; c++)
@@ -158,7 +163,7 @@ void ex2_encode() {
     aencoder enc;
     aen_init(&enc);
     double prev = mat[0][0];
-    ld var = 100;
+    ld var = 1;
     const int learn = LEARN_RATE;
     for(int a=0; a<4; ++a) {
         for(i=a==0; i<total; ++i) {
@@ -170,6 +175,33 @@ void ex2_encode() {
             double dx = v-prev;
             var = (learn*var + dx*dx)/(learn+1);
             prev = v;
+        }
+    }
+    printf("integer part size: %u\n", enc.di);
+    uint32_t counts[100];
+    for(int i=0; i<100; ++i) counts[i] = 1;
+    const int C = LOW_LEARN_RATE;
+    counts[lmat[0][0]] += C;
+    uint32_t csum = 100 + C;
+    for(int a=0; a<4; ++a) {
+        for(int i=a==0; i<total; ++i) {
+            int v = lmat[i][a];
+            uint32_t low=0;
+            for(int j=0; j<v; ++j) low += counts[j];
+            uint32_t hi = low + counts[v];
+//            printf("low %d %d %d\n", low, hi, csum);
+            aen_encode_range(&enc, low, hi, csum);
+
+            counts[v] += C;
+            csum += C;
+#if 0
+            const int K = 1000;
+            if (i>K) {
+                int old = lmat[i-K][a];
+                counts[old] -= C;
+                csum -= C;
+            }
+#endif
         }
     }
     aen_finish(&enc);

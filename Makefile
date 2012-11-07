@@ -42,6 +42,11 @@ c.tar.gz: extract
 	7z a -tGZip -mx=9 c.tar.gz c.tar
 	du -b $@
 
+test: extract
+	./$<
+	diff c/ex1_class.dat ex1_class.dat
+	diff c/four-stocks.csv four-stocks.csv
+
 clean:
 	rm *.o
 	rm extract

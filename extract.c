@@ -112,8 +112,10 @@ void ad_read_bits(adecoder* dec)
 void ad_apply_range(adecoder* dec,uint32_t l,uint32_t u,uint32_t total)
 {
     uint64_t range = (uint64_t)(dec->upper) - dec->lower+1;
-    uint64_t scaled_low = (l * range) / TOTALPROB;
-    uint64_t scaled_up = (u * range) / TOTALPROB;
+//    uint64_t scaled_low = (l * range) / TOTALPROB;
+//    uint64_t scaled_up = (u * range) / TOTALPROB;
+    uint64_t scaled_low = do_div(l * range, total);
+    uint64_t scaled_up = do_div(u * range, total);
     dec->upper = dec->lower + scaled_up - 1;
     dec->lower = dec->lower + scaled_low;
     ad_read_bits(dec);
@@ -162,23 +164,20 @@ void ex1_extract()
 }
 #include "model2.c"
 uint32_t ex2_res[4*EX2_ROWS];
+uint32_t ex2_low[4*EX2_ROWS];
 char ex2_output[EX2_ROWS * 100];
 char* output;
-void printrec(int x, int s) {
-    if (x==0) return;
-    printrec(x/10, s+1);
-    *output++ = '0'+x%10;
-    if (s==2) *output++ = '.';
-}
 void printval(int x) {
-    printrec(x,0);
+    if (x==0) return;
+    printval(x/10);
+    *output++ = '0'+x%10;
 }
 void ex2_extract()
 {
     adecoder dec;
     ad_init(&dec, ex2_encoded);
-    double prev = 5225;
-    ld var = 100;
+    double prev = START_VALUE/100;
+    ld var = 1;
     const int learn = LEARN_RATE;
     ex2_res[0] = prev;
     for(int t = 1; t < 4*EX2_ROWS; t++)
@@ -194,11 +193,31 @@ void ex2_extract()
         var = (learn*var + dx*dx) / (learn+1);
         prev = s;
     }
+    uint32_t counts[100];
+    for(int i=0; i<100; ++i) counts[i] = 1;
+    counts[ex2_low[0] = START_VALUE%100] += LOW_LEARN_RATE;
+    uint32_t csum = 100 + LOW_LEARN_RATE;
+    for(int t=1; t<4*EX2_ROWS; ++t) {
+        uint32_t p = ad_read_prob(&dec, csum);
+        uint32_t out,sum;
+//        printf("k: %d\n", p);
+        for(out=sum=0; sum<=p; sum += counts[out++]);
+        --out;
+        ad_apply_range(&dec, sum-counts[out], sum, csum);
+        ex2_low[t] = out;
+
+        counts[out] += LOW_LEARN_RATE;
+        csum += LOW_LEARN_RATE;
+    }
     output = ex2_output;
     for(int i=0; i<EX2_ROWS; ++i) {
         for(int j=0; j<4; ++j) {
             int v = ex2_res[i+j*EX2_ROWS];
+            int v2 = ex2_low[i+j*EX2_ROWS];
             printval(v);
+            *output++ = '.';
+            *output++ = '0' + v2/10;
+            *output++ = '0' + v2%10;
             *output++ = ',';
         }
         output[-1] = 10;
