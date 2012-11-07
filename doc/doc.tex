@@ -99,7 +99,7 @@ We experimented with different values and saw that picking $L=10$ gives generall
 
 The Gaussian model with adaptive variance had a problem that the probability of the peaks is extremely low, around $10^{-100}$.
 As our arithmetic coding uses 32-bit integers, it is impossible to cope with probabilities smaller than $2^{-30}$.
-To fix this, we added a constant $2^{-30}$ to probabilities of all values and scaled the normal distribution probabilities so that the total probability still sums to 0.
+To fix this, we added a constant $2^{-30}$ to probabilities of all values and scaled the normal distribution probabilities so that the total probability still sums to 1.
 As the largest number in the data (after converting to integers) was 45100, we only needed to add the constant to first 45101 integers, and scale the original probabilities by $\frac{2^{30}-45101}{2^{30}} \approx 0.999953$.
 This factor is so close to 1 that it doesn't hinder the overall compression quality much, while adding the constant guarantees that any value can be encoded using no more than 30 bits.
 
