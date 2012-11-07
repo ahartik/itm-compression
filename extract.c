@@ -52,7 +52,7 @@ static inline uint64_t div_u64_rem(uint64_t dividend, uint32_t divisor, uint32_t
                 upper %= divisor;
         }
         asm ("divl %2" : "=a" (d.v32[0]), "=d" (*remainder) :
-                "rm" (divisor), "" (d.v32[0]), "1" (upper));
+                "rm" (divisor), "0" (d.v32[0]), "1" (upper));
         return d.v64;
 }
 
@@ -207,10 +207,18 @@ void ex2_extract()
     int outf = openfile("c/four_stocks.csv",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(outf, ex2_output, (int)(output-ex2_output));
 }
+#ifndef DEBUG
 void _start()
+#else
+int main()
+#endif
 {
     ex1_extract();
     ex2_extract();
     //exit
+#ifndef DEBUG
     asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");
+#else
+    return 0;
+#endif
 }
