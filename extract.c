@@ -204,7 +204,7 @@ void ex2_extract()
         output[-1] = 10;
     }
 
-    int outf = openfile("c/four_stocks.csv",O_WRONLY|O_TRUNC|O_CREAT, 0644);
+    int outf = openfile("c/four-stocks.csv",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(outf, ex2_output, (int)(output-ex2_output));
 }
 #ifndef DEBUG
