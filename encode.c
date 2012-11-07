@@ -181,10 +181,9 @@ doneread:;
     uint32_t counts[100];
     for(int i=0; i<100; ++i) counts[i] = 1;
     const int C = LOW_LEARN_RATE;
-    counts[lmat[0][0]] += C;
-    uint32_t csum = 100 + C;
+    uint32_t csum = 100;
     for(int a=0; a<4; ++a) {
-        for(int i=a==0; i<total; ++i) {
+        for(int i=0; i<total; ++i) {
             int v = lmat[i][a];
             uint32_t low=0;
             for(int j=0; j<v; ++j) low += counts[j];
