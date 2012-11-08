@@ -152,6 +152,7 @@ void ex2_encode() {
 doneread:;
     int total=i;
 //  printf("read %d\n", total);
+#if 0
     for (uint32_t c = 0; c < MAX_VALUE; c++)
     {
         uint32_t p = sym2prob(c,5225,100);
@@ -159,6 +160,7 @@ doneread:;
         assert(prob2sym(p,5225,100)==c);
         assert(prob2sym(p2-1,5225,100)==c);
     }
+#endif
 
     aencoder enc;
     aen_init(&enc);
