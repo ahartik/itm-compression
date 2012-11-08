@@ -197,10 +197,6 @@ void ex2_extract()
     for(int i=0; i<100; ++i) counts[i] = 1;
     uint32_t csum = 100;
     for(int t=0; t<4*EX2_ROWS; ++t) {
-        if (t==4*LOW_CUTOFF) {
-            for(int i=0; i<100; ++i) counts[i]=1;
-            csum=100;
-        }
         uint32_t p = ad_read_prob(&dec, csum);
         uint32_t out,sum;
 //        printf("k: %d\n", p);
@@ -210,7 +206,12 @@ void ex2_extract()
         ex2_low[t] = out;
 
         counts[out] += LOW_LEARN_RATE;
-        csum += LOW_LEARN_RATE;
+
+        const int K = 4*LOW_UNLEARN;
+        if (t>=K) {
+            int old = ex2_low[t-K];
+            counts[old] -= LOW_LEARN_RATE;
+        } else csum += LOW_LEARN_RATE;
     }
     output = ex2_output;
     for(int i=0; i<EX2_ROWS; ++i) {

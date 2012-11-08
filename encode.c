@@ -184,10 +184,6 @@ doneread:;
     uint32_t csum = 100;
         for(int i=0; i<total; ++i) {
     for(int a=0; a<4; ++a) {
-            if (i==LOW_CUTOFF && a==0) {
-                for(int i=0; i<100; ++i) counts[i]=1;
-                csum = 100;
-            }
             int v = lmat[i][a];
             uint32_t low=0;
             for(int j=0; j<v; ++j) low += counts[j];
@@ -197,14 +193,12 @@ doneread:;
 
             counts[v] += C;
             csum += C;
-#if 0
-            const int K = 1000;
-            if (i>K) {
+            const int K = LOW_UNLEARN;
+            if (i>=K) {
                 int old = lmat[i-K][a];
                 counts[old] -= C;
                 csum -= C;
             }
-#endif
         }
     }
     aen_finish(&enc);
