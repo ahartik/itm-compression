@@ -21,7 +21,7 @@
 %\tableofcontents
 %\newpage
 
-\section*{Problem 1}
+\section{Problem 1}
 
 The first task was to compress a sequence of bits using side data that was also available during decompression.
 
@@ -70,7 +70,7 @@ $x_1$ & $x_2$ & $x_3$ & $x_4$ & $P(x_0 = 0)$ & $P(x_0 = 1) $ \\ \hline
 \label{ex1_probs}
 \end{figure}
 
-\section*{Problem 2}
+\section{Problem 2}
 
 The second task was to compress data consisting of stock prices of four different stocks over 10121 days.
 The data consisted of floating point values with two decimals.
@@ -108,15 +108,20 @@ This factor is so close to 1 that it doesn't hinder the overall compression qual
 To compress all four stocks, we simply concatenated their numbers into one array to simplify the implementation.
 Doing this and compressing the array using the model described above gave us total data size 44975 bytes.
 
-%\subsection{Compressing fractions and whole integers separately}
+\subsection{Compressing fractions and whole integers separately}
 
-The fractional parts of the stock prices seemed to be divided quite unevenly: almost half of the values were multiples of $\frac{1}{4}$, and quite many were multiples of $\frac{1}{8}$. Figure~\ref{fig:frac} displays the frequencies of different decimal parts. As the differences were very big it made sense to try to take them into account in the distribution used in arithmetic coding.
+The fractional parts of the stock prices seemed to be divided quite unevenly: almost half of the values were multiples of $\frac{1}{4}$, and quite many were multiples of $\frac{1}{8}$.
+Figure~\ref{fig:frac} displays the frequencies of different decimal parts.
+As the differences were very big it made sense to try to take them into account in the distribution used in arithmetic coding.
 
 The probabilities used during arithmetic coding are defined by a cumulative distribution function, and it seemed tricky to use this observation there without doing a lot of extra computation.
 To avoid computation cost, we tried to simply encode the fractional parts and the whole parts separately.
 The whole numbers where encoded using the Gaussian distribution described above, using 13086~bytes.
 The fractional parts where encoded with a simple distribution that assumed that the probability of each symbol is proportional to the number of times it has previously been encountered, plus a small constant to avoid 0-probabilities.
 This costed 24555~bytes, for a total size of 37641~bytes.
+
+Since for all four stock there were much more multiplied of $\frac{1}{8}$ in the beginning of the data than towards the end, it made sense to encode the numbers in row-major order to exploit the changing distribution.
+Using this approach with an adaptive encoding we were able to reduce the data size for fractional parts to 21364~bytes from the original 24555.
 
 \begin{figure}
 	\includegraphics[scale=0.5]{frac.pdf}
