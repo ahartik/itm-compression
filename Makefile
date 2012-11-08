@@ -2,7 +2,7 @@ default: encode extract c.tar.gz
 
 CC=gcc
 CFLAGS=-Os -m32 -std=gnu99 -Wall -Wno-unused-result
-ECFLAGS=-Os -m32 -nostdlib -fwhole-program -std=gnu99  -flto -Wall -Wno-unused-result -ffast-math
+ECFLAGS=-Os -m32 -nostdlib -fwhole-program -std=gnu99  -flto -Wall -Wno-unused-result -ffast-math -Wl,--build-id=none -fomit-frame-pointer
 DFLAGS=-g -m32 -std=gnu99 -Wall -Wno-unused-result -DDEBUG
 
 data.o: data.asm ex1_data.bin
