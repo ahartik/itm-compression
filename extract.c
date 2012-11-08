@@ -197,6 +197,11 @@ void ex2_extract()
     for(int i=0; i<100; ++i) counts[i] = 1;
     uint32_t csum = 100;
     for(int t=0; t<4*EX2_ROWS; ++t) {
+        if (t>=4*LOW_CUTOFF) {
+            uint32_t s = ex2_low[t] = ad_read_prob(&dec, 100);
+            ad_apply_range(&dec, s, s+1, 100);
+            continue;
+        }
         uint32_t p = ad_read_prob(&dec, csum);
         uint32_t out,sum;
 //        printf("k: %d\n", p);
@@ -212,7 +217,7 @@ void ex2_extract()
     for(int i=0; i<EX2_ROWS; ++i) {
         for(int j=0; j<4; ++j) {
             int v = ex2_res[i+j*EX2_ROWS];
-            int v2 = ex2_low[i+j*EX2_ROWS];
+            int v2 = ex2_low[4*i+j];
             printval(v);
             *output++ = '.';
             *output++ = '0' + v2/10;
