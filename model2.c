@@ -5,7 +5,7 @@ static inline long double cdf(ld x) {
 //    printf("cdf %Lf\n", x);
     return .5 * (1 + erfl(x/sqrt(2)));
 }
-#define MIN_PROB 1000
+#define MIN_PROB 5000
 #define MAX_VALUE (500*MIN_PROB)
 #define LEARN_RATE 10
 #define LOW_LEARN_RATE 50
