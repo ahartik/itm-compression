@@ -184,12 +184,15 @@ doneread:;
     uint32_t csum = 100;
         for(int i=0; i<total; ++i) {
     for(int a=0; a<4; ++a) {
+            if (i==LOW_CUTOFF && a==0) {
+                for(int i=0; i<100; ++i) counts[i]=1;
+                csum = 100;
+            }
             int v = lmat[i][a];
             uint32_t low=0;
             for(int j=0; j<v; ++j) low += counts[j];
             uint32_t hi = low + counts[v];
 //            printf("low %d %d %d\n", low, hi, csum);
-            if (i>=LOW_CUTOFF) low=v, hi=v+1, csum=100;
             aen_encode_range(&enc, low, hi, csum);
 
             counts[v] += C;

@@ -197,10 +197,9 @@ void ex2_extract()
     for(int i=0; i<100; ++i) counts[i] = 1;
     uint32_t csum = 100;
     for(int t=0; t<4*EX2_ROWS; ++t) {
-        if (t>=4*LOW_CUTOFF) {
-            uint32_t s = ex2_low[t] = ad_read_prob(&dec, 100);
-            ad_apply_range(&dec, s, s+1, 100);
-            continue;
+        if (t==4*LOW_CUTOFF) {
+            for(int i=0; i<100; ++i) counts[i]=1;
+            csum=100;
         }
         uint32_t p = ad_read_prob(&dec, csum);
         uint32_t out,sum;
