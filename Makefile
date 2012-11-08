@@ -44,8 +44,8 @@ c.tar.gz: extract
 
 test: extract
 	./$<
-	diff c/ex1_class.dat ex1_class.dat
-	diff c/four-stocks.csv four-stocks.csv
+	diff -q c/ex1_class.dat ex1_class.dat
+	diff -q c/four-stocks.csv four-stocks.csv
 
 clean:
 	rm *.o
