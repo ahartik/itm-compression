@@ -25,7 +25,7 @@ extract.s: extract.c data.h
 extract.o: extract.c data.h
 	${CC} ${ECFLAGS} extract.c  -c
 
-encode: encode.c model.c model2.c
+encode: encode.c model.c model2.c model3.c
 	${CC} ${CFLAGS} encode.c -o $@ -lm
 
 #run: extract unpack.header
