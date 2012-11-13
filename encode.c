@@ -109,7 +109,7 @@ void ex1_encode() {
     {
         int data[4];
         int x0;
-        fscanf(class,"%i",&x0);
+        fscanf(class,"%i\n",&x0);
         fscanf(side,"%i %i %i %i",data,data+1,data+2,data+3);
         int r=0;
         uint32_t prob;
@@ -210,9 +210,27 @@ doneread:;
     fclose(fout);
 }
 
+void ex3_encode() {
+    aencoder enc;
+    aen_init(&enc);
+    FILE* side = fopen("shuttle.side","r");
+    FILE* class = fopen("shuttle.class","r");
+    while(!feof(class)) {
+        int c;
+        fscanf(class, "%d\n", &c);
+        double ss[9];
+        for(int i=0; i<9; ++i) {
+            fscanf(side, "%f", &ss[i]);
+        }
+    }
+    aen_finish(&enc);
+    FILE* fout = fopen("ex3_data.bin", "w");
+    fclose(fout);
+}
+
 int main()
 {
     ex1_encode();
     ex2_encode();
+    ex3_encode();
 }
-
