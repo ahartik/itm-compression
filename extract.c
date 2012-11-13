@@ -230,7 +230,29 @@ void ex2_extract()
     int outf = openfile("c/four-stocks.csv",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(outf, ex2_output, (int)(output-ex2_output));
 }
+
+#if 0
 #include"model3_tree.h"
+#else
+#pragma pack(push,1)
+typedef struct {
+	char var;
+	char to;
+	short split;
+} Ex3Node;
+#pragma pack(pop)
+#include"model3_tree2.h"
+int ex3_class(int* x) {
+	int i=0;
+	while(ex3_tree[i].var>=0) {
+		int var = ex3_tree[i].var;
+		int split = ex3_tree[i].split;
+		i = ex3_tree[i].to + (x[var] >= split);
+	}
+	return -ex3_tree[i].var;
+}
+#endif
+
 char ex3_side_s[2<<20];
 char* input;
 int readint() {
