@@ -388,6 +388,30 @@ void ex3_print_tree(DTree* t,FILE* out)
     }
 }
 
+int dotnode = 0;
+int ex3_tree_dot(DTree* t,FILE* out){
+    int r = dotnode++;
+    if(t->leaf_class)
+    {
+        fprintf(out, "n%i [label = \"%i\"] ;\n",r,t->leaf_class);
+    }else
+    {
+        int l = ex3_tree_dot(t->less,out);
+        int m = ex3_tree_dot(t->more,out);
+        fprintf(out, "n%i [label = \"x%i < %i\"] ;\n",r,t->var,t->split);
+        fprintf(out, "n%i -> n%i [label = \"<\"] ;\n",r,l);
+        fprintf(out, "n%i -> n%i [label = \"\u2265\"] ;\n",r,m);
+    }
+    return r;
+}
+void ex3_print_tree_dot(DTree* t){
+    FILE* out = fopen("ex3_tree.dot","w");
+    fprintf(out, "digraph dtree{\n");
+    ex3_tree_dot(t, out);
+    fprintf(out, "}\n");
+    fclose(out);
+}
+
 void ex3_print_tree_code(DTree* t){
     FILE* out = fopen("model3_tree.h","w");
     fprintf(out,
@@ -450,6 +474,7 @@ void ex3_encode() {
     const int SAMPLED = row;
     DTree* tree = ex3_create_tree(0,SAMPLED);
     ex3_print_tree_code(tree);
+    ex3_print_tree_dot(tree);
 
     double correct = 0;
     for(int i=0;i<row;i++)
