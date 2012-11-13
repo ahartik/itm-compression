@@ -139,9 +139,9 @@ from couple of last stock values. We used this value to predict the next change.
 This approach produced few bytes longer codelength than the first model so we
 abandoned the idea.
 
-Next model was discrete cosine transform. With low number of coefficients results were
-clearly worse than from the first model. With 1000 coefficients theoretical codelength
-was approximately the same as the first model.
+Next model we considered was discrete cosine transform.
+With low number of coefficients results were clearly worse than from the first model.
+With 1000 coefficients theoretical codelength was approximately the same as the first model.
 
 \begin{figure}
 \begin{center}
@@ -155,21 +155,12 @@ was approximately the same as the first model.
     4      & 120852 \\ \hline
     5      & 120100 \\ \hline
     6      & 120131 \\ \hline
-    30      & 114236 \\ \hline
+    30     & 114236 \\ \hline
 \end{tabular}
 \end{center}
 \caption{Code length of first stock using polynomial model}
 \label{ex2_polys}
 \end{figure}
-
-
-\begin{enumerate}
-\item Polynomial fit
-Didn't work.
-\item Discrete cosine transform
-Didn't work either.
-
-\end{enumerate}
 
 \section{Task 3}
 
@@ -190,6 +181,19 @@ It turned out that with only 4 internal nodes we were able to classify the data 
 With 28 internal nodes the tree was able to perfectly classify the input data.
 The tree was so small that it didn't make sense to design any complex compression scheme for it.
 Instead we just outputted the tree as C code to minimize the overhead of using the tree.
+\begin{figure}
+    %\begin{center}
+	\centerline{\includegraphics[width=1.8\textwidth]{ex3_big.pdf}\label{fig:ex3big}}
+    %\end{center}
+    \caption{Exact decision tree}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+	\includegraphics[scale=0.5]{ex3_small.pdf}\label{fig:ex3small}
+    \end{center}
+    \caption{Approximate decision tree}
+\end{figure}
 
 \section{Optimizing the executable size}
 
