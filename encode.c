@@ -211,7 +211,193 @@ doneread:;
 }
 
 #include "model3.c"
-int ex3_class[EX3_SIZE];
+typedef struct DTree_rec
+{
+    int var;
+    double split;
+    struct DTree_rec* less;
+    struct DTree_rec* more;
+    int leaf_class;
+} DTree;
+
+
+
+#define SWAP(a,b) do{\
+        typeof(a) _t_ = a;\
+        a = b;\
+        b = _t_;\
+    }while(0)
+
+
+
+int ex3_class[58101];
+int ex3_sort[58101];
+
+void ex3_swap(int a,int b)
+{
+    double side[9];
+    memcpy(side,ex3_side[a],sizeof(side));
+    memcpy(ex3_side[a],ex3_side[b],sizeof(side));
+    memcpy(ex3_side[b], side, sizeof(side));
+    int t = ex3_class[a];
+    ex3_class[a] = ex3_class[b];
+    ex3_class[b] = t;
+}
+
+
+double ex3_entropy(int begin,int end)
+{
+    int count[10] = {};
+    for(int i=begin; i != end; ++i)
+    {
+        int pi = ex3_sort[i];
+        count[ex3_class[pi]]++;
+    }
+    int total = end-begin;
+    double h = 0;
+    for(int i=1;i<=9;i++){
+        if (count[i] != 0)
+            h+=count[i] * -log2((double)count[i]/ total);
+    }
+    return h;
+}
+
+int ex3_partition(int begin,int end,int pivot,int a)
+{
+    int pp = begin;
+
+    for(int i=begin;i < end; ++i)
+    {
+        int ir = ex3_sort[i];
+        if (ex3_side[ir][a] < ex3_side[pivot][a])
+        {
+            SWAP(ex3_sort[pp],ex3_sort[ir]);
+            pp++;
+        }
+    }
+    //SWAP(ex3_sort[pp],ex3_sort[end-1]);
+    return pp;
+}
+
+
+int ex3_cmp_v = 1;
+int ex3_cmp(const int* ap,const int* bp)
+{
+    int a = *ap;
+    int b = *bp;
+    double da = ex3_side[a][ex3_cmp_v];
+    double db = ex3_side[b][ex3_cmp_v];
+    if(da == db)return 0;
+    if(da < db) return -1;
+    return 1;
+}
+
+const double EX3_CUTOFF = 0.0;
+
+DTree* ex3_create_tree(int begin, int end)
+{
+    int best_v=0;
+    int best_p=ex3_sort[begin];
+    double min_entropy = 1e40;
+    DTree* ret = malloc(sizeof(DTree));
+
+    int count[10] = {};
+    for(int i=begin; i != end; ++i)
+    {
+        int pi = ex3_sort[i];
+        count[ex3_class[pi]]++;
+    }
+
+    ret->leaf_class = 1;
+    for(int i=1;i<=7;i++)
+    {
+        if(count[i] > count[ret->leaf_class])
+            ret->leaf_class = i;
+    }
+    int same = 1;
+    for(int i=begin;i<end;i++)
+    {
+        int ri = ex3_sort[i];
+        int cl = ex3_class[ri];
+        if(cl!=ret->leaf_class)
+        {
+            same = 0;
+            break;
+        }
+    }
+    if (same){
+        return ret;
+    }
+
+    double mye = ex3_entropy(begin,end);
+    for(int v=0;v<9;v++)
+    {
+        //printf("v = %i\n",v);
+        ex3_cmp_v = v;
+
+        qsort(ex3_sort+begin,end-begin,sizeof(int),ex3_cmp);
+        int left = begin;
+        int right = end;
+
+        double le,re;
+
+        for(int i=left;i<right;i++)
+        {
+            double e = ex3_entropy(begin,i)+ex3_entropy(i,end);
+            if (e < min_entropy)
+            {
+                min_entropy = e;
+                //printf("entropy %i %f\n",i, min_entropy);
+                best_v = v;
+                best_p = i;
+            }
+        }
+    }
+
+
+#if 0
+    if(mye - min_entropy < EX3_CUTOFF){
+        return ret;
+    }
+#endif
+    ret->leaf_class = 0;
+
+    //printf("%f %f\n",min_entropy, mye);
+    assert(min_entropy < mye);
+    ret->var = best_v;
+
+    ex3_cmp_v = best_v;
+    qsort(ex3_sort+begin,end-begin,sizeof(int),ex3_cmp);
+    ret->split = ex3_side[ex3_sort[best_p]][best_v];
+    printf("split %i-%i done: x[%i] < %f\n", begin,end, best_v,ret->split);
+
+    ret->less = ex3_create_tree(begin, best_p);
+    ret->more = ex3_create_tree(best_p, end);
+    return ret;
+}
+void ex3_print_tree(DTree* t)
+{
+    if (t->leaf_class)
+    {
+        printf("C%i",t->leaf_class);
+    } else
+    {
+        printf("(x[%i] < %f ? ",t->var, t->split);
+        ex3_print_tree(t->less);
+        printf(":");
+        ex3_print_tree(t->more);
+        printf(")");
+    }
+}
+
+int ex3_tree_classify(DTree* t,int* x)
+{
+    if(t->leaf_class)return t->leaf_class;
+    if(x[t->var] < t->split)
+        return ex3_tree_classify(t->less, x);
+    return ex3_tree_classify(t->more, x);
+}
+
 void ex3_encode() {
     aencoder enc;
     aen_init(&enc);
@@ -224,9 +410,11 @@ void ex3_encode() {
             fscanf(side, "%d", &ex3_side[row][i]);
         }
         ex3_side[row][9] = 1;
+        ex3_sort[row] = row;
         ++row;
     }
 
+#if 0
     int count=0;
     for(int a=0; a<1000; ++a) {
         int c = ex3_class[a]-1;
@@ -247,7 +435,24 @@ void ex3_encode() {
         if (bi==c) ++count;
     }
     printf("rate: %f\n", (double)count / 1000);
+#endif
+    //for(int i=0;i<row;i++)
+        //printf("%i ",ex3_class[i]);
+    const int SAMPLED = 10000;
+    DTree* tree = ex3_create_tree(0,SAMPLED);
+    ex3_print_tree(tree);
 
+    double correct = 0;
+    for(int i=0;i<SAMPLED;i++)
+    {
+        int c = ex3_tree_classify(tree, ex3_side[i]);
+        if(c == ex3_class[i])
+            correct++;
+    }
+    printf("\n");
+    printf("classify rate %f\n",correct/SAMPLED);
+
+    printf("\n");
     aen_finish(&enc);
     FILE* fout = fopen("ex3_data.bin", "w");
     fclose(fout);
