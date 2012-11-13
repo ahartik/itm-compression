@@ -132,7 +132,7 @@ Using this approach with an adaptive encoding we were able to reduce the data si
 \subsection {More complicated models}
 We also tried fitting more complicated models to the data.
 Simple polynomial fits gave significantly worse results than the first model.
-Trying to fit polynomial to the difference data proved difficult as 
+Trying to fit polynomial to the difference data proved difficult as
 
 One possible improvement to the first model we tried was to take average difference
 from couple of last stock values. We used this value to predict the next change.
@@ -170,6 +170,26 @@ Didn't work.
 Didn't work either.
 
 \end{enumerate}
+
+\section{Task 3}
+
+The third task was to compress shuttle classes using side data that was also available during decompression.
+There were 58000 class values to be compressed, each ranging from 1 to 7.
+The side data consisted of 9 values for each shuttle class.
+
+The side data didn't contain any duplicates with different classes.
+That is, it was possible to create a perfect classifier that detected the class of each item based on just the side data without having to explicitly encode any data besides the classifier.
+
+We created a simple decision tree learner to see how well we could classify the data with a simple tree.
+Each node of the decision tree contained a test about whether some element of the side data was smaller than a given value, and each leave contained the class that were most common among the items in the noed.
+The learned used the standard decision tree learning technique of choosing the test that maximizes the information gain of the test, which is equal to minimizing the entropy of the resulting two classes.
+The algorithm iterates over all possible ways to split the nodes and chooses the best way and recursively advances to split the resulting two sets.
+
+The decision tree learning worked suprisingly well.
+It turned out that with only 4 internal nodes we were able to classify the data with precision 99.4\%.
+With 28 internal nodes the tree was able to perfectly classify the input data.
+The tree was so small that it didn't make sense to design any complex compression scheme for it.
+Instead we just outputted the tree as C code to minimize the overhead of using the tree.
 
 \section{Optimizing the executable size}
 
