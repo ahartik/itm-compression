@@ -230,6 +230,37 @@ void ex2_extract()
     int outf = openfile("c/four-stocks.csv",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(outf, ex2_output, (int)(output-ex2_output));
 }
+char ex3_side_s[2<<20];
+char* input;
+int readint() {
+	int r=0;
+	while(1) {
+		char c = *input++;
+		if (c>='0' && c<='9') {
+			r = 10*r + c-'0';
+		} else {
+			break;
+		}
+	}
+	return r;
+}
+#define EX3_SIZE 58000
+char ex3_output[1<<20];
+void ex3_extract() {
+    int in = openfile("ex1_side.dat",O_RDONLY,0);
+	readdata(in, ex3_side_s, sizeof(ex3_side_s));
+	input = ex3_side_s;
+	int x[9];
+	output = ex3_output;
+	for(int i=0; i<EX3_SIZE; ++i) {
+		for(int j=0; j<9; ++j) x[j] = readint();
+		int c = 1;
+		*output++ = '0' + c;
+		*output++ = '\n';
+	}
+    int outf = openfile("c/shuttle.class",O_WRONLY|O_TRUNC|O_CREAT, 0644);
+	writedata(outf, ex3_output, 2*EX3_SIZE);
+}
 #ifndef DEBUG
 void _start()
 #else
