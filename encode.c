@@ -218,9 +218,9 @@ void ex3_encode() {
     while(!feof(class)) {
         int c;
         fscanf(class, "%d\n", &c);
-        double ss[9];
+        int ss[9];
         for(int i=0; i<9; ++i) {
-            fscanf(side, "%f", &ss[i]);
+            fscanf(side, "%d", &ss[i]);
         }
     }
     aen_finish(&enc);
