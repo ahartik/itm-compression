@@ -46,6 +46,7 @@ test: extract
 	./$<
 	diff -q c/ex1_class.dat ex1_class.dat
 	diff -q c/four-stocks.csv four-stocks.csv
+	diff -q c/shuttle.class shuttle.class
 
 clean:
 	rm *.o
