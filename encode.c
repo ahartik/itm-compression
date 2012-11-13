@@ -210,7 +210,8 @@ doneread:;
     fclose(fout);
 }
 
-#include "model3.c"
+//#include "model3.c"
+int ex3_side[58101][10];
 typedef struct DTree_rec
 {
     int var;
