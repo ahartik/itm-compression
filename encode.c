@@ -211,19 +211,43 @@ doneread:;
 }
 
 #include "model3.c"
+int ex3_class[EX3_SIZE];
 void ex3_encode() {
     aencoder enc;
     aen_init(&enc);
     FILE* side = fopen("shuttle.side","r");
     FILE* class = fopen("shuttle.class","r");
+    int row=0;
     while(!feof(class)) {
-        int c;
-        fscanf(class, "%d\n", &c);
-        int ss[9];
+        fscanf(class, "%d\n", &ex3_class[row]);
         for(int i=0; i<9; ++i) {
-            fscanf(side, "%d", &ss[i]);
+            fscanf(side, "%d", &ex3_side[row][i]);
         }
+        ex3_side[row][9] = 1;
+        ++row;
     }
+
+    int count=0;
+    for(int a=0; a<1000; ++a) {
+        int c = ex3_class[a]-1;
+        double best=-1e9;
+        int bi=0;
+        for(int i=0; i<EX3_VARS; ++i) {
+            double yy = ppredict(i, a);
+            if (yy>best) {
+                best=yy;
+                bi=i;
+            }
+            int pred = yy>0 ? 1 : -1;
+            int real = c==i ? 1 : -1;
+            if (pred != real) {
+                pupdate(i, a, real);
+            }
+        }
+        if (bi==c) ++count;
+    }
+    printf("rate: %f\n", (double)count / 1000);
+
     aen_finish(&enc);
     FILE* fout = fopen("ex3_data.bin", "w");
     fclose(fout);
