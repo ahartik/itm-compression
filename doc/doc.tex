@@ -132,9 +132,16 @@ Using this approach with an adaptive encoding we were able to reduce the data si
 \subsection {More complicated models}
 We also tried fitting more complicated models to the data.
 Simple polynomial fits gave significantly worse results than the first model.
-Theoretical results using different polynomials can be seen in Figure \ref{ex2_polys}.
+Trying to fit polynomial to the difference data proved difficult as 
 
-Next model was discrete cosine transform. This seemed to fit
+One possible improvement to the first model we tried was to take average difference
+from couple of last stock values. We used this value to predict the next change.
+This approach produced few bytes longer codelength than the first model so we
+abandoned the idea.
+
+Next model was discrete cosine transform. With low number of coefficients results were
+clearly worse than from the first model. With 1000 coefficients theoretical codelength
+was approximately the same as the first model.
 
 \begin{figure}
 \begin{center}

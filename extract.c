@@ -230,6 +230,12 @@ void ex2_extract()
     int outf = openfile("c/four-stocks.csv",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(outf, ex2_output, (int)(output-ex2_output));
 }
+#include"model3_tree.h"
+void ex3_extract()
+{
+    
+}
+
 #ifndef DEBUG
 void _start()
 #else
@@ -238,6 +244,7 @@ int main()
 {
     ex1_extract();
     ex2_extract();
+    ex3_extract();
     //exit
 #ifndef DEBUG
     asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");
