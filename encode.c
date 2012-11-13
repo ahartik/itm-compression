@@ -210,6 +210,7 @@ doneread:;
     fclose(fout);
 }
 
+#include "model3.c"
 void ex3_encode() {
     aencoder enc;
     aen_init(&enc);
