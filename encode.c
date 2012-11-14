@@ -248,7 +248,7 @@ double ex3_entropy(int begin,int end)
         if (count[i] != 0)
             h+=count[i] * -log2((double)count[i]/ total);
     }
-    return (end-begin)*h;
+    return total*h;
 }
 
 int ex3_partition(int begin,int end,int pivot,int a)
