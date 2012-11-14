@@ -423,28 +423,33 @@ void ex3_print_tree_code(DTree* t){
     fprintf(out,";\n}\n");
     fclose(out);
 }
-short ex3_array[256][3];
-int ex3_makearray(DTree* t, int n, int c) {
+short ex3_array[256][4];
+int ex3_makearray(DTree* t, int n) {
 //    printf("makearray %d %d\n", n, c);
-    if (t->leaf_class) {
-        ex3_array[n][0] = -t->leaf_class;
-        ex3_array[n][1] = 0;
-        ex3_array[n][2] = 0;
+    ex3_array[n][2] = t->var;
+    ex3_array[n][3] = t->split;
+
+    int c=n+1;
+    if (t->less->leaf_class) {
+        ex3_array[n][0] = -t->less->leaf_class;
     } else {
-        ex3_array[n][0] = t->var;
+        ex3_array[n][0] = c;
+        c = ex3_makearray(t->less, c);
+    }
+    if (t->more->leaf_class) {
+        ex3_array[n][1] = -t->more->leaf_class;
+    } else {
         ex3_array[n][1] = c;
-        ex3_array[n][2] = t->split;
-        int d = ex3_makearray(t->less, c, c+2);
-        c = ex3_makearray(t->more, c+1, d);
+        c = ex3_makearray(t->more, c);
     }
     return c;
 }
 void ex3_print_array(DTree* t) {
-    int n = ex3_makearray(t, 0, 1);
+    int n = ex3_makearray(t, 0);
     FILE* out = fopen("model3_tree2.h", "w");
     fprintf(out, "#pragma once\nEx3Node ex3_tree[%d] = { ", n);
     for(int i=0; i<n; ++i) {
-        fprintf(out, "{%d, %d, %d}, ", ex3_array[i][0], ex3_array[i][1], ex3_array[i][2]);
+        fprintf(out, "{{%d,%d}, %d, %d}, ", ex3_array[i][0], ex3_array[i][1], ex3_array[i][2], ex3_array[i][3]);
     }
     fputs("};\n", out);
     fclose(out);
