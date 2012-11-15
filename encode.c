@@ -176,7 +176,7 @@ doneread:;
             aen_encode_range(&enc, low, hi, TOTALPROB);
             double dx = v-prev;
             prev = v;
-            if (fabs(dx)>20) continue;
+            if (fabs(dx)>9) continue;
             var = (learn*var + dx*dx)/(learn+1);
         }
     }
