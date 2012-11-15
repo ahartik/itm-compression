@@ -175,8 +175,9 @@ doneread:;
 //            printf("range %f %f : %f\n", (double)low/TOTALPROB, (double)hi/TOTALPROB, (hi-low)/(double)TOTALPROB);
             aen_encode_range(&enc, low, hi, TOTALPROB);
             double dx = v-prev;
-            var = (learn*var + dx*dx)/(learn+1);
             prev = v;
+            if (fabs(dx)>20) continue;
+            var = (learn*var + dx*dx)/(learn+1);
         }
     }
     printf("integer part size: %u\n", enc.di);

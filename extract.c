@@ -190,8 +190,9 @@ void ex2_extract()
         ex2_res[t] = s;
 
         double dx = s - prev;
-        var = (learn*var + dx*dx) / (learn+1);
         prev = s;
+        if (fabs(dx)>20) continue;
+        var = (learn*var + dx*dx) / (learn+1);
     }
     uint32_t counts[100];
     for(int i=0; i<100; ++i) counts[i] = 1;
