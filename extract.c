@@ -191,7 +191,7 @@ void ex2_extract()
 
         double dx = s - prev;
         prev = s;
-        if (fabs(dx)>20) continue;
+        if (fabs(dx)>9) continue;
         var = (learn*var + dx*dx) / (learn+1);
     }
     uint32_t counts[100];
