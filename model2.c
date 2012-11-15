@@ -15,7 +15,7 @@ static inline long double cdf(ld x) {
 static uint32_t sym2prob(uint32_t sym, double mid, ld var) {
     const long double fac = TOTALPROB - MAX_VALUE;
 //    printf("diff %f\n", sym-mid);
-    return MIN_PROB*sym + fac * cdf((sym-mid)/sqrtl(1.25*var));
+    return MIN_PROB*sym + fac * cdf((sym-mid-.5f)/sqrtl(1.25f*var));
 }
 static uint32_t prob2sym(uint32_t prob, double m, ld var) {
 #if 1
