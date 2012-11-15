@@ -76,9 +76,8 @@ The second task was to compress data consisting of stock prices of four differen
 The data consisted of floating point values with two decimals.
 As we didn't want to think about floating point accuracy issues, we simply converted the initial data to integers by multiplying the values by 100 and divided our final result again by 100 before outputting it.
 
-All prices were under \$40 so they can be stored as 16-bit integers.
-This gives total size of about 81~KiB.
-
+All the prices were under 500 so they can be stored as 16-bit integers.
+Thus a trivial storing the data without any proper compression gives a total size of about 81~KiB.
 
 To find a good compression scheme, we initially tried plotting the data, as shown in Figure~\ref{fig:ex2o}.
 As there was no immedient regularity to be seen, we tried seeing how the values change by taking the differences of adjacent values, shown in Figure~\ref{fig:ex2d}.
