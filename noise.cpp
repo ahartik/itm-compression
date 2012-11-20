@@ -73,8 +73,8 @@ double evalBlock(int curBlock, double gaussVar, double gaussRatio, double alpha,
 			assert(x<S);
 			assert(y<S);
 			double c = -log2(prob(mat[y][x], gaussVar, gaussRatio, alpha, beta));
-			assert(!isnan(c));
 //			cout<<"cc "<<mat[y][x]<<' '<<c<<'\n';
+			assert(!isnan(c));
 			r += c;
 		}
 	}
@@ -95,7 +95,7 @@ struct AlphaS {
 	double gaussVar,gaussRatio;
 	BetaS s;
 	double operator()(double x) {
-		cout<<"alpha "<<x<<'\n';
+//		cout<<"alpha "<<x<<'\n';
 		s = (BetaS){cur, gaussVar, gaussRatio, x};
 		return s(tseek(0, 5, s, 10));
 	}
@@ -105,11 +105,12 @@ struct BlockS {
 	AlphaS s;
 	double operator()(double gaussRatio) {
 		double r=0;
+#pragma omp parallel for reduction(+:r)
 		for(int i=0; i<15; ++i) {
 			s = (AlphaS){i, gaussVar, gaussRatio};
 			double c = s(tseek(0, 50, s, 10));
-			cout<<"block cost "<<c<<'\n';
 			assert(!isnan(c));
+			cout<<"block cost "<<i<<" : "<<c<<'\n';
 			r += c;
 		}
 		return r;
