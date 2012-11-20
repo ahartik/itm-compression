@@ -1,21 +1,22 @@
+#pragma once
+
 #include "model.h"
-#include <math.h>
-#include <stdint.h>
 #include "pmath.h"
+#include <stdint.h>
 
-#define MIN_PROB 5000
-#define MAX_VALUE (500*MIN_PROB)
-#define LEARN_RATE 10
-#define LOW_LEARN_RATE 50
-#define START_VALUE 5225
-#define LOW_UNLEARN 200
+#define EX4_MIN_PROB 5000
+#define EX4_MAX_VALUE (500*MIN_PROB)
+#define EX4_LEARN_RATE 10
+#define EX4_LOW_LEARN_RATE 50
+#define EX4_START_VALUE 5225
+#define EX4_LOW_UNLEARN 200
 
-static uint32_t sym2prob(uint32_t sym, double mid, ld var) {
+static uint32_t ex4_sym2prob(uint32_t sym, double mid, ld var, ld beta,) {
     const long double fac = TOTALPROB - MAX_VALUE;
 //    printf("diff %f\n", sym-mid);
     return MIN_PROB*sym + fac * cdf((sym-mid)/sqrtl(var));
 }
-static uint32_t prob2sym(uint32_t prob, double m, ld var) {
+static uint32_t ex4_prob2sym(uint32_t prob, double m, ld var) {
 #if 1
     uint32_t r=0;
     while(sym2prob(r, m, var)<=prob) ++r;
