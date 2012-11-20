@@ -190,8 +190,9 @@ void ex2_extract()
         ex2_res[t] = s;
 
         double dx = s - prev;
-        var = (learn*var + dx*dx) / (learn+1);
         prev = s;
+        if (fabs(dx)>9) continue;
+        var = (learn*var + dx*dx) / (learn+1);
     }
     uint32_t counts[100];
     for(int i=0; i<100; ++i) counts[i] = 1;
@@ -230,42 +231,64 @@ void ex2_extract()
     int outf = openfile("c/four-stocks.csv",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(outf, ex2_output, (int)(output-ex2_output));
 }
+
+#if 0
 #include"model3_tree.h"
+#else
+#pragma pack(push,1)
+typedef struct {
+    signed char to[2];
+    unsigned var : 4;
+    short split : 12;
+} Ex3Node;
+#pragma pack(pop)
+#include"model3_tree2.h"
+int ex3_class(int* x) {
+    int i=0;
+    while(i>=0) {
+        int var = ex3_tree[i].var;
+        int split = ex3_tree[i].split;
+        i = ex3_tree[i].to[x[var] >= split];
+    }
+    return -i;
+}
+#endif
+
 char ex3_side_s[2<<20];
 char* input;
 int readint() {
-	int r=0;
-	int f=1;
-	while(1) {
-		char c = *input++;
-//		printf("c %c %d\n", c, c);
-		if (c>='0' && c<='9') {
-			r = 10*r + c-'0';
-		} else if (c=='-') {
-			f=-1;
-		} else {
-			break;
-		}
-	}
-	return f*r;
+    int r=0;
+    int f=1;
+    while(1) {
+        char c = *input++;
+//      printf("c %c %d\n", c, c);
+        if (c>='0' && c<='9') {
+            r = 10*r + c-'0';
+        } else if (c=='-') {
+            f=-1;
+        } else {
+            break;
+        }
+    }
+    return f*r;
 }
 #define EX3_SIZE 58000
 char ex3_output[1<<20];
 void ex3_extract() {
     int in = openfile("shuttle.side",O_RDONLY,0);
-	readdata(in, ex3_side_s, sizeof(ex3_side_s));
-	input = ex3_side_s;
-	int x[9];
-	output = ex3_output;
-	for(int i=0; i<EX3_SIZE; ++i) {
-		for(int j=0; j<9; ++j) x[j] = readint();
-//		for(int j=0; j<9; ++j) printf("%d ",x[j]);putchar(10);
-		int c = ex3_class(x);
-		*output++ = '0' + c;
-		*output++ = '\n';
-	}
+    readdata(in, ex3_side_s, sizeof(ex3_side_s));
+    input = ex3_side_s;
+    int x[9];
+    output = ex3_output;
+    for(int i=0; i<EX3_SIZE; ++i) {
+        for(int j=0; j<9; ++j) x[j] = readint();
+//      for(int j=0; j<9; ++j) printf("%d ",x[j]);putchar(10);
+        int c = ex3_class(x);
+        *output++ = '0' + c;
+        *output++ = '\n';
+    }
     int outf = openfile("c/shuttle.class",O_WRONLY|O_TRUNC|O_CREAT, 0644);
-	writedata(outf, ex3_output, 2*EX3_SIZE);
+    writedata(outf, ex3_output, 2*EX3_SIZE);
 }
 
 #ifndef DEBUG

@@ -14,7 +14,7 @@ typedef struct SVM {
     double ws[EX3_SIZE];
     int idx[EX3_SIZE];
 } SVM;
-int ex3_side[EX3_SIZE][EX3_VARS+1];
+//int ex3_side[EX3_SIZE][EX3_VARS+1];
 SVM svms[EX3_CLASS];
 
 static double ppredict(int c, int ix) {

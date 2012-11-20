@@ -175,8 +175,9 @@ doneread:;
 //            printf("range %f %f : %f\n", (double)low/TOTALPROB, (double)hi/TOTALPROB, (hi-low)/(double)TOTALPROB);
             aen_encode_range(&enc, low, hi, TOTALPROB);
             double dx = v-prev;
-            var = (learn*var + dx*dx)/(learn+1);
             prev = v;
+            if (fabs(dx)>9) continue;
+            var = (learn*var + dx*dx)/(learn+1);
         }
     }
     printf("integer part size: %u\n", enc.di);
@@ -210,7 +211,8 @@ doneread:;
     fclose(fout);
 }
 
-#include "model3.c"
+//#include "model3.c"
+int ex3_side[58101][10];
 typedef struct DTree_rec
 {
     int var;
@@ -247,7 +249,7 @@ double ex3_entropy(int begin,int end)
         if (count[i] != 0)
             h+=count[i] * -log2((double)count[i]/ total);
     }
-    return h;
+    return total*h;
 }
 
 int ex3_partition(int begin,int end,int pivot,int a)
@@ -422,6 +424,37 @@ void ex3_print_tree_code(DTree* t){
     fprintf(out,";\n}\n");
     fclose(out);
 }
+short ex3_array[256][4];
+int ex3_makearray(DTree* t, int n) {
+//    printf("makearray %d %d\n", n, c);
+    ex3_array[n][2] = t->var;
+    ex3_array[n][3] = t->split;
+
+    int c=n+1;
+    if (t->less->leaf_class) {
+        ex3_array[n][0] = -t->less->leaf_class;
+    } else {
+        ex3_array[n][0] = c;
+        c = ex3_makearray(t->less, c);
+    }
+    if (t->more->leaf_class) {
+        ex3_array[n][1] = -t->more->leaf_class;
+    } else {
+        ex3_array[n][1] = c;
+        c = ex3_makearray(t->more, c);
+    }
+    return c;
+}
+void ex3_print_array(DTree* t) {
+    int n = ex3_makearray(t, 0);
+    FILE* out = fopen("model3_tree2.h", "w");
+    fprintf(out, "#pragma once\nEx3Node ex3_tree[%d] = { ", n);
+    for(int i=0; i<n; ++i) {
+        fprintf(out, "{{%d,%d}, %d, %d}, ", ex3_array[i][0], ex3_array[i][1], ex3_array[i][2], ex3_array[i][3]);
+    }
+    fputs("};\n", out);
+    fclose(out);
+}
 
 int ex3_tree_classify(DTree* t,int* x)
 {
@@ -475,6 +508,8 @@ void ex3_encode() {
     DTree* tree = ex3_create_tree(0,SAMPLED);
     ex3_print_tree_code(tree);
     ex3_print_tree_dot(tree);
+
+    ex3_print_array(tree);
 
     double correct = 0;
     for(int i=0;i<row;i++)
