@@ -3,12 +3,13 @@
 
 typedef long double ld;
 
-ld igamma(ld s,ld x)
+#if 0
+ld igamma(ld a,ld z)
 {
 //    return boost::math::gamma_p(s,x);
     return boost::math::tgamma_lower(s,x);
     ld ga = 0;
-    const int N = 2000;
+    const int N = 200;
     ld flog = 0;
     ld xlog = log(x);
     ld xplog = s * xlog;
@@ -24,6 +25,25 @@ ld igamma(ld s,ld x)
     }
     return ga;
 }
+
+#else
+static ld igrecz(int,ld,ld);
+static ld igrec1(int n, ld a,ld z)
+{
+    if (n == 20) return (n-a);
+    return (n-a) / (1+igrecz(n,a,z));
+}
+static ld igrecz(int n, ld a,ld z)
+{
+    return (n) / (z+igrec1(n+1,a,z));
+}
+static ld igamma(ld a,ld z)
+{
+    return boost::math::tgamma_lower(a,z);
+    return tgamma(a) - exp(-z)*pow(z,a) / (z+igrec1(1,a,z));
+}
+
+#endif
 
 static inline long double gcdf(ld x,ld b) {
 //    printf("cdf %Lf\n", x);
