@@ -44,7 +44,16 @@ template<class F>
 double tseek(double low, double hi, F fun, int iter=50) {
 	for(int i=0; i<iter; ++i) {
 		double a = (2*low+hi)/3, b = (low+2*hi)/3;
-		if (fun(a) < fun(b)) {
+		double av=0, bv=0;
+//#pragma omp parallel sections
+		{
+			{ av = fun(a); }
+//#pragma omp section
+			{ bv = fun(b); }
+		}
+
+//		if (fun(a) < fun(b)) {
+		if (av < bv) {
 			hi = b;
 		} else {
 			low = a;
@@ -64,6 +73,7 @@ double prob(double x, double gaussVar, double gaussRatio, double curA, double cu
 double evalBlock(int curBlock, double gaussVar, double gaussRatio, double alpha, double beta) {
 	int s = sizes[curBlock];
 	double r=0;
+//#pragma omp for reduction(+,r)
 	for(int i=0; i<s; ++i) {
 		for(int j=0; j<s; ++j) {
 			int x = startx[curBlock] + j;
@@ -113,6 +123,7 @@ struct BlockS {
 			cout<<"block cost "<<i<<" : "<<c<<'\n';
 			r += c;
 		}
+		cout<<"total cost "<<gaussVar<<' '<<gaussRatio<<" : "<<r<<'\n';
 		return r;
 	}
 };
@@ -123,35 +134,6 @@ struct GaussRatioS {
 		return s(tseek(0, 1, s));
 	}
 };
-
-#if 0
-double blockB(double beta) {
-	curB = beta;
-	return evalBlock();
-}
-double blockA(double alpha) {
-	curA = alpha;
-	cout<<"alpha: "<<alpha<<'\n';
-	return blockB(tseek(0, 50, blockB, 10));
-}
-
-double varEval(double ratio) {
-	gaussRatio = ratio;
-	double r=0;
-	for(int i=0; i<15; ++i) {
-		curBlock = i;
-		double c = blockA(tseek(0, 50, blockA, 10));
-		cout<<"block cost "<<c<<'\n';
-		r += c;
-	}
-	cout<<"vareval "<<gaussVar<<' '<<gaussRatio<<" : "<<r<<'\n';
-	return r;
-}
-double varWeightEval(double var) {
-	gaussVar = var;
-	return varEval(tseek(0, 1, varEval));
-}
-#endif
 
 double getVar() {
 	GaussRatioS s;
@@ -181,5 +163,8 @@ int main() {
 		for(int j=0; j<3; ++j) sizes[3*i+j] = s;
 	}
 
-	cout<<getVar()<<'\n';
+	double var = getVar();
+	cout<<"variance: "<<var<<'\n';
+	double ratio = GaussRatioS()(var);
+	cout<<"result: "<<var<<' '<<ratio<<'\n';
 }
