@@ -39,7 +39,9 @@ static ld igrecz(int n, ld a,ld z)
 }
 static ld igamma(ld a,ld z)
 {
+#ifdef __cplusplus
     return boost::math::tgamma_lower(a,z);
+#endif
     return tgamma(a) - exp(-z)*pow(z,a) / (z+igrec1(1,a,z));
 }
 
