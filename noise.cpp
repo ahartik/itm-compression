@@ -88,7 +88,7 @@ double evalBlock(int curBlock, double gaussVar, double gaussRatio, double alpha,
 			r += c;
 		}
 	}
-//	cout<<"evalblock "<<curBlock<<' '<<alpha<<' '<<beta<<" : "<<r<<'\n';
+//	cout<<"evalblock "<<curBlock<<' '<<alpha<<' '<<beta<<' '<<s<<" : "<<r<<'\n';
 	assert(!isnan(r));
 	return r;
 }
@@ -103,21 +103,19 @@ struct BetaS {
 struct AlphaS {
 	int cur;
 	double gaussVar,gaussRatio;
-	BetaS s;
 	double operator()(double x) {
 //		cout<<"alpha "<<x<<'\n';
-		s = (BetaS){cur, gaussVar, gaussRatio, x};
+		BetaS s = (BetaS){cur, gaussVar, gaussRatio, x};
 		return s(tseek(0, 5, s, 10));
 	}
 };
 struct BlockS {
 	double gaussVar;
-	AlphaS s;
 	double operator()(double gaussRatio) {
 		double r=0;
 #pragma omp parallel for reduction(+:r)
 		for(int i=0; i<15; ++i) {
-			s = (AlphaS){i, gaussVar, gaussRatio};
+			AlphaS s = (AlphaS){i, gaussVar, gaussRatio};
 			double c = s(tseek(0, 50, s, 10));
 			assert(!isnan(c));
 			cout<<"block cost "<<i<<" : "<<c<<'\n';
@@ -128,9 +126,8 @@ struct BlockS {
 	}
 };
 struct GaussRatioS {
-	BlockS s;
 	double operator()(double x) {
-		s = (BlockS){x};
+		BlockS s = (BlockS){x};
 		return s(tseek(0, 1, s));
 	}
 };
