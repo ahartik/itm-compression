@@ -347,6 +347,16 @@ void ex4_extract() {
 }
 char ex5_output[1<<20];
 char ex5_input[1<<20];
+double matvar(int i, int j) {
+    int s = 16<<i;
+    int sy = s*(j&1), sx = s*(j>>1);
+    double r=0;
+    for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
+        int v = ex4_mat[sy+y][sx+x];
+        r += v*v;
+    }
+    return r / (s*s);
+}
 void ex5_extract() {
     int in = openfile("kiddog.arr",O_RDONLY,0);
     readdata(in, ex5_input, sizeof(ex5_input));
@@ -354,7 +364,7 @@ void ex5_extract() {
     int* inp=&ex4_mat[0][0];
     for(int i=0; i<512*512; ++i) *inp++ = readint();
 
-#if 1
+#if 0
     const int T = 100;
     for(int i=0; i<512; ++i) {
         for(int j=0; j<512; ++j) {
@@ -368,17 +378,22 @@ void ex5_extract() {
     }
 #else
 //    const int T = 100;
-    const int TS[5] = {100,100,100,150,100};
+    double var0 = matvar(4,3);
     for(int i=0; i<5; ++i) {
-        int T = TS[i];
         int s = 16<<i;
+        double L = s*s;
+        double J = 5;
+        double B = sqrt(log(L/J));
         for(int j=1; j<4; ++j) {
+            double var = matvar(i,j);
+            double T = B * var0 / sqrt(var);
             int sy = s*(j&1), sx = s*(j>>1);
             for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
                 int z = ex4_mat[sy+y][sx+x];
                 if (abs(z)<T) {
                     z = 0;
-                }
+                } else if (z>0) z-=T;
+                else z+=T;
                 ex4_mat[sy+y][sx+x] = z;
             }
         }
