@@ -354,6 +354,18 @@ void ex5_extract() {
     int* inp=&ex4_mat[0][0];
     for(int i=0; i<512*512; ++i) *inp++ = readint();
 
+    const int T = 100;
+    for(int i=0; i<512; ++i) {
+        for(int j=0; j<512; ++j) {
+            if (i<16 && j<16) continue;
+            int x = ex4_mat[i][j];
+            if (abs(x)<T) {
+                x = 0;
+            }
+            ex4_mat[i][j] = x;
+        }
+    }
+
     output = ex5_output;
     printmat();
     int out = openfile("c/kd.arr",O_WRONLY|O_TRUNC|O_CREAT, 0644);
