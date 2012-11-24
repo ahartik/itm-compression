@@ -92,14 +92,28 @@ double evalBlock(int curBlock, double gaussVar, double gaussRatio, double alpha,
 	assert(!isnan(r));
 	return r;
 }
+double getAlpha(int block, double beta) {
+	int s = sizes[block];
+	double sum=0;
+	for(int i=0; i<s; ++i) for(int j=0; j<s; ++j) {
+		int x = startx[block]+j, y = starty[block]+i;
+		double v = mat[y][x];
+		sum += pow(fabs(v), beta);
+	}
+	double a = pow(beta*sum/(s*s), 1/beta);
+	return a;
+}
 
 struct BetaS {
 	int cur;
-	double gaussVar,gaussRatio,alpha;
+	double gaussVar,gaussRatio;
 	double operator()(double beta) {
+		double alpha = getAlpha(cur, beta);
+//		cout<<"alpha for "<<beta<<" : "<<alpha<<'\n';
 		return evalBlock(cur, gaussVar, gaussRatio, alpha, beta);
 	}
 };
+#if 0
 struct AlphaS {
 	int cur;
 	double gaussVar,gaussRatio;
@@ -109,14 +123,15 @@ struct AlphaS {
 		return s(tseek(0, 5, s, 10));
 	}
 };
+#endif
 struct BlockS {
 	double gaussVar;
 	double operator()(double gaussRatio) {
 		double r=0;
 #pragma omp parallel for reduction(+:r)
 		for(int i=0; i<15; ++i) {
-			AlphaS s = {i, gaussVar, gaussRatio};
-			double c = s(tseek(0, 50, s, 10));
+			BetaS s = {i, gaussVar, gaussRatio};
+			double c = s(tseek(0, 5, s, 10));
 			assert(!isnan(c));
 			cout<<"block cost "<<i<<" : "<<c<<'\n';
 			r += c;
@@ -139,6 +154,8 @@ double getVar() {
 //	return tseek(0, 50, varWeightEval);
 }
 
+double betas[15];
+
 int main() {
 #if 0
 	for(int i=1; i<20; ++i) {
@@ -151,18 +168,44 @@ int main() {
 	ifstream in("kiel.arr");
 	for(int i=0; i<S; ++i) for(int j=0; j<S; ++j) in>>mat[i][j];
 
-	for(int i=0, s=S/2; i<5; ++i, s/=2) {
-		startx[3*i] = s;
-		startx[3*i+1] = 0;
-		startx[3*i+2] = s;
-		starty[3*i] = 0;
-		starty[3*i+1] = s;
-		starty[3*i+2] = s;
-		for(int j=0; j<3; ++j) sizes[3*i+j] = s;
+	for(int i=0; i<5; ++i) {
+		int s = 16<<i;
+		for(int j=0; j<3; ++j) {
+			sizes[3*i+j] = s;
+			startx[3*i+j] = s*((j+1)>>1);
+			starty[3*i+j] = s*((j+1)&1);
+		}
 	}
 
+	for(int k=0; k<15; ++k) {
+		int s = sizes[k];
+		double sum=0;
+		for(int i=0; i<s; ++i) for(int j=0; j<s; ++j) {
+			sum += mat[starty[k]+i][startx[k]+j];
+		}
+		cout<<"sum "<<k<<' '<<sum<<" ; "<<sum/(s*s)<<'\n';
+	}
+
+#if 0
 	double var = getVar();
 	cout<<"variance: "<<var<<'\n';
 	double ratio = GaussRatioS()(var);
 	cout<<"result: "<<var<<' '<<ratio<<'\n';
+#else
+	double var = 40, ratio = .25;
+	double total = 0;
+#pragma omp parallel for reduction(+:total)
+	for(int i=0; i<15; ++i) {
+		BetaS s = {i, var, ratio};
+		double beta = tseek(0, 5, s, 10);
+		double cost = s(beta);
+		cout<<"beta "<<i<<" : "<<beta<<" ; "<<cost<<'\n';
+		total += cost;
+		betas[i] = beta;
+	}
+	cout<<"total "<<total<<'\n';
+
+	cout<<"const float betas[15] = {"; for(int i=0; i<15; ++i) cout<<betas[i]<<','; cout<<"};\n";
+	cout<<"const float alphas[15] = {"; for(int i=0; i<15; ++i) cout<<getAlpha(i,betas[i])<<','; cout<<"};\n";
+#endif
 }
