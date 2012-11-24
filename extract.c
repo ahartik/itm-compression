@@ -354,6 +354,7 @@ void ex5_extract() {
     int* inp=&ex4_mat[0][0];
     for(int i=0; i<512*512; ++i) *inp++ = readint();
 
+#if 1
     const int T = 100;
     for(int i=0; i<512; ++i) {
         for(int j=0; j<512; ++j) {
@@ -365,6 +366,24 @@ void ex5_extract() {
             ex4_mat[i][j] = x;
         }
     }
+#else
+//    const int T = 100;
+    const int TS[5] = {100,100,100,150,100};
+    for(int i=0; i<5; ++i) {
+        int T = TS[i];
+        int s = 16<<i;
+        for(int j=1; j<4; ++j) {
+            int sy = s*(j&1), sx = s*(j>>1);
+            for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
+                int z = ex4_mat[sy+y][sx+x];
+                if (abs(z)<T) {
+                    z = 0;
+                }
+                ex4_mat[sy+y][sx+x] = z;
+            }
+        }
+    }
+#endif
 
     output = ex5_output;
     printmat();
