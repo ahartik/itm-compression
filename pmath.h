@@ -30,7 +30,7 @@ ld igamma(ld a,ld z)
 static ld igrecz(int,ld,ld);
 static ld igrec1(int n, ld a,ld z)
 {
-    if (n == 20) return (n-a);
+    if (n == 8000) return (n-a);
     return (n-a) / (1+igrecz(n,a,z));
 }
 static ld igrecz(int n, ld a,ld z)
@@ -49,6 +49,7 @@ static ld igamma(ld a,ld z)
 
 static inline long double gcdf(ld x,ld b) {
 //    printf("cdf %Lf\n", x);
+    if (x==0) return .5;
     double sgn = x < 0 ? -1 : 1;
     return 0.5+sgn*igamma(1/b,pow(fabs(x), b))/(2*tgammal(1/b));
 }

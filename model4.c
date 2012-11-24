@@ -19,8 +19,14 @@ const float alphas[15] = {158.643,446.424,100.958,59.8716,124.305,55.7026,42.078
 
 static inline uint32_t ex4_sym2prob(int sym, ld alpha, ld beta) {
     const long double fac = TOTALPROB - EX4_MAX_VALUE;
+    double g = cdf(sym/EX4_GAUSS_VAR);
+    double gg = gcdf(sym/alpha, beta);
+//    printf("gg %Lf %Lf %f\n", sym/alpha, beta, gg);
+//    assert(gg>=0);
 //    printf("diff %f\n", sym-mid);
-    return MIN_PROB*(sym-EX4_MIN) + fac * cdf(sym/EX4_GAUSS_VAR);
+//    return MIN_PROB*(sym-EX4_MIN) + fac * g;
+    double r = EX4_GAUSS_RATIO;
+    return MIN_PROB*(sym-EX4_MIN) + fac * (r*g + (1-r)*gg);
 }
 static inline int ex4_prob2sym(uint32_t prob, ld alpha, ld beta) {
 #if 0

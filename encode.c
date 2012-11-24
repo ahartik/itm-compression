@@ -524,10 +524,10 @@ void ex4_encode() {
     for(int i=0, block=0; i<5; ++i) {
         int s = 16<<i;
         for(int j=1; j<4; ++j, ++block) {
+            double alpha = alphas[block], beta = betas[block];
             int sy = s*(j&1), sx = s*(j>>1);
             for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
                 int v = ex4_mat[sy+y][sx+x];
-                double alpha = alphas[block], beta = betas[block];
                 uint32_t low = ex4_sym2prob(v, alpha, beta);
                 uint32_t hi = ex4_sym2prob(v+1, alpha, beta);
 //                printf("range %d: %f %f\n", v, (double)low/TOTALPROB, (double)hi/TOTALPROB);
@@ -535,6 +535,7 @@ void ex4_encode() {
                 assert(hi<TOTALPROB);
                 aen_encode_range(&enc, low, hi, TOTALPROB);
             }
+            printf("part %d %d done\n", i, j);
         }
     }
 

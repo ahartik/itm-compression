@@ -14,7 +14,7 @@ ex1_data.bin: encode
 read.o: read.asm
 	nasm -f elf $<
 
-extract: extract.c data.o data.h model.c read.h model2.c model4.c
+extract: extract.c data.o data.h model.c read.h model2.c model4.c pmath.h
 	${CC} ${ECFLAGS} extract.c data.o  -o $@ -lm
 	strip extract
 	sstrip extract
@@ -25,7 +25,7 @@ extract.s: extract.c data.h
 extract.o: extract.c data.h
 	${CC} ${ECFLAGS} extract.c  -c
 
-encode: encode.c model.c model2.c model4.c
+encode: encode.c model.c model2.c model4.c pmath.h
 	${CC} ${CFLAGS} encode.c -o $@ -lm
 
 #run: extract unpack.header
