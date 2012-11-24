@@ -465,8 +465,6 @@ int ex3_tree_classify(DTree* t,int* x)
 }
 
 void ex3_encode() {
-    aencoder enc;
-    aen_init(&enc);
     FILE* side = fopen("shuttle.side","r");
     FILE* class = fopen("shuttle.class","r");
     int row=0;
@@ -480,28 +478,6 @@ void ex3_encode() {
         ++row;
     }
 
-#if 0
-    int count=0;
-    for(int a=0; a<1000; ++a) {
-        int c = ex3_class[a]-1;
-        double best=-1e9;
-        int bi=0;
-        for(int i=0; i<EX3_VARS; ++i) {
-            double yy = ppredict(i, a);
-            if (yy>best) {
-                best=yy;
-                bi=i;
-            }
-            int pred = yy>0 ? 1 : -1;
-            int real = c==i ? 1 : -1;
-            if (pred != real) {
-                pupdate(i, a, real);
-            }
-        }
-        if (bi==c) ++count;
-    }
-    printf("rate: %f\n", (double)count / 1000);
-#endif
     //for(int i=0;i<row;i++)
         //printf("%i ",ex3_class[i]);
     const int SAMPLED = row;
@@ -525,12 +501,46 @@ void ex3_encode() {
 #endif
         }
     }
+#if 0
     printf("\n");
     printf("classify rate %f\n",correct/row);
-
     printf("\n");
+#endif
+}
+#include "model4.c"
+int ex4_mat[512][512];
+void ex4_encode() {
+    aencoder enc;
+    aen_init(&enc);
+    FILE* in = fopen("kiel.arr", "r");
+    for(int i=0; i<512; ++i) for(int j=0; j<512; ++j) fscanf(in, "%d",&ex4_mat[i][j]);
+
+    for(int i=0; i<16; ++i) for(int j=0; j<16; ++j) {
+        int x = ex4_mat[i][j] - EX4_S_LOW;
+        assert(x>=0);
+        assert(x<EX4_S_HIGH-EX4_S_LOW);
+        aen_encode_range(&enc, x, x+1, EX4_S_HIGH-EX4_S_LOW);
+    }
+    for(int i=0; i<5; ++i) {
+        int s = 16<<i;
+        for(int j=1; j<4; ++j) {
+            int sy = s*(j&1), sx = s*(j>>1);
+            for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
+                int v = ex4_mat[sy+y][sx+x];
+                uint32_t low = ex4_sym2prob(v, 0, 0);
+                uint32_t hi = ex4_sym2prob(v+1, 0, 0);
+//                printf("range %d: %f %f\n", v, (double)low/TOTALPROB, (double)hi/TOTALPROB);
+                assert(low<hi);
+                assert(hi<TOTALPROB);
+                aen_encode_range(&enc, low, hi, TOTALPROB);
+            }
+        }
+    }
+
     aen_finish(&enc);
-    FILE* fout = fopen("ex3_data.bin", "w");
+    FILE* fout = fopen("ex4_data.bin", "w");
+    fwrite(enc.data, 1, enc.di, fout);
+    printf("wrote %u bytes\n", enc.di);
     fclose(fout);
 }
 
@@ -539,4 +549,5 @@ int main()
     ex1_encode();
     ex2_encode();
     ex3_encode();
+    ex4_encode();
 }

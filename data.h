@@ -7,5 +7,6 @@
 
 extern uint8_t ex1_encoded[];
 extern uint8_t ex2_encoded[];
+extern uint8_t ex4_encoded[];
 
 #endif

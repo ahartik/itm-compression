@@ -168,6 +168,10 @@ uint32_t ex2_low[4*EX2_ROWS];
 char ex2_output[EX2_ROWS * 100];
 char* output;
 void printval(int x) {
+    if (x<0) {
+        *output++ = '-';
+        x = -x;
+    }
     if (x==0) return;
     printval(x/10);
     *output++ = '0'+x%10;
@@ -291,6 +295,54 @@ void ex3_extract() {
     writedata(outf, ex3_output, 2*EX3_SIZE);
 }
 
+#include "model4.c"
+int ex4_mat[512][512];
+char ex4_output[1<<20];
+void ex4_extract() {
+    adecoder dec;
+    ad_init(&dec, ex4_encoded);
+
+    for(int i=0; i<16; ++i) for(int j=0; j<16; ++j) {
+        int x = ad_read_prob(&dec, EX4_S_HIGH-EX4_S_LOW);
+//        printf("read %d %d: %d\n", i, j, x);
+        ad_apply_range(&dec, x, x+1, EX4_S_HIGH-EX4_S_LOW);
+        ex4_mat[i][j] = EX4_S_LOW + x;
+    }
+#if 1
+    for(int i=0; i<5; ++i) {
+        int s = 16<<i;
+        for(int j=1; j<4; ++j) {
+            int sy = s*(j&1), sx = s*(j>>1);
+            for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
+                uint32_t p = ad_read_prob(&dec, TOTALPROB);
+                int s = ex4_prob2sym(p, 0, 0);
+//                printf("sym: %d\n", sym);
+                uint32_t low = ex4_sym2prob(s, 0, 0);
+                uint32_t hi = ex4_sym2prob(s+1, 0, 0);
+//                printf("range: %u %u %u\n", low, hi, TOTALPROB);
+                ad_apply_range(&dec, low, hi, TOTALPROB);
+
+                ex4_mat[sy+y][sx+x] = s;
+            }
+        }
+    }
+#endif
+
+    output = ex4_output;
+    for(int i=0; i<512; ++i) {
+        for(int j=0; j<512; ++j) {
+            int x = ex4_mat[i][j];
+            if (x==0) *output++='0';
+            else printval(x);
+            *output++ = ' ';
+        }
+        output[-1] = '\n';
+    }
+
+    int outf = openfile("c/kiel.arr",O_WRONLY|O_TRUNC|O_CREAT, 0644);
+    writedata(outf, ex4_output, (int)(output-ex4_output));
+}
+
 #ifndef DEBUG
 void _start()
 #else
@@ -300,6 +352,7 @@ int main()
     ex1_extract();
     ex2_extract();
     ex3_extract();
+    ex4_extract();
     //exit
 #ifndef DEBUG
     asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");

@@ -3,7 +3,7 @@ default: encode extract c.tar.gz
 CC=gcc
 CFLAGS=-Os -m32 -std=gnu99 -Wall -Wno-unused-result
 ECFLAGS=-Os -m32 -nostdlib -fwhole-program -std=gnu99  -flto -Wall -Wno-unused-result -ffast-math -Wl,--build-id=none -fomit-frame-pointer
-DFLAGS=-g -m32 -std=gnu99 -Wall -Wno-unused-result -DDEBUG -O0
+DCFLAGS=-g -m32 -std=gnu99 -Wall -Wno-unused-result -DDEBUG -O0
 
 data.o: data.asm ex1_data.bin
 	nasm $< -f elf
@@ -14,8 +14,8 @@ ex1_data.bin: encode
 read.o: read.asm
 	nasm -f elf $<
 
-extract: extract.c data.o data.h model.c read.h
-	${CC} ${ECFLAGS} extract.c data.o  -o $@ -lm
+extract: extract.c data.o data.h model.c read.h model2.c model4.c
+	${CC} ${DCFLAGS} extract.c data.o  -o $@ -lm
 	strip extract
 	sstrip extract
 
@@ -25,7 +25,7 @@ extract.s: extract.c data.h
 extract.o: extract.c data.h
 	${CC} ${ECFLAGS} extract.c  -c
 
-encode: encode.c model.c model2.c model3.c
+encode: encode.c model.c model2.c model4.c
 	${CC} ${CFLAGS} encode.c -o $@ -lm
 
 #run: extract unpack.header
@@ -47,6 +47,7 @@ test: extract
 	diff -q c/ex1_class.dat ex1_class.dat
 	diff -q c/four-stocks.csv four-stocks.csv
 	diff -q c/shuttle.class shuttle.class
+	diff -q c/kiel.arr kiel.arr
 
 clean:
 	rm *.o
