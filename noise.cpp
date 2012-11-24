@@ -122,13 +122,14 @@ struct BlockS {
 			r += c;
 		}
 		cout<<"total cost "<<gaussVar<<' '<<gaussRatio<<" : "<<r<<'\n';
+		cout.flush();
 		return r;
 	}
 };
 struct GaussRatioS {
 	double operator()(double x) {
 		BlockS s = (BlockS){x};
-		return s(tseek(0, 1, s));
+		return s(tseek(0, 1, s, 10));
 	}
 };
 
