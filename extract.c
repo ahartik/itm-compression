@@ -298,6 +298,17 @@ void ex3_extract() {
 #include "model4.c"
 int ex4_mat[512][512];
 char ex4_output[1<<20];
+void printmat() {
+    for(int i=0; i<512; ++i) {
+        for(int j=0; j<512; ++j) {
+            int x = ex4_mat[i][j];
+            if (x==0) *output++='0';
+            else printval(x);
+            *output++ = ' ';
+        }
+        output[-1] = '\n';
+    }
+}
 void ex4_extract() {
     adecoder dec;
     ad_init(&dec, ex4_encoded);
@@ -329,18 +340,24 @@ void ex4_extract() {
 #endif
 
     output = ex4_output;
-    for(int i=0; i<512; ++i) {
-        for(int j=0; j<512; ++j) {
-            int x = ex4_mat[i][j];
-            if (x==0) *output++='0';
-            else printval(x);
-            *output++ = ' ';
-        }
-        output[-1] = '\n';
-    }
+    printmat();
 
     int outf = openfile("c/kiel.arr",O_WRONLY|O_TRUNC|O_CREAT, 0644);
     writedata(outf, ex4_output, (int)(output-ex4_output));
+}
+char ex5_output[1<<20];
+char ex5_input[1<<20];
+void ex5_extract() {
+    int in = openfile("kiddog.arr",O_RDONLY,0);
+    readdata(in, ex5_input, sizeof(ex5_input));
+    input = ex5_input;
+    int* inp=&ex4_mat[0][0];
+    for(int i=0; i<512*512; ++i) *inp++ = readint();
+
+    output = ex5_output;
+    printmat();
+    int out = openfile("c/kd.arr",O_WRONLY|O_TRUNC|O_CREAT, 0644);
+    writedata(out, ex5_output, (int)(output-ex5_output));
 }
 
 #ifndef DEBUG
@@ -353,6 +370,7 @@ int main()
     ex2_extract();
     ex3_extract();
     ex4_extract();
+    ex5_extract();
     //exit
 #ifndef DEBUG
     asm ("xor %ebx, %ebx;mov $1, %eax;int $128;");

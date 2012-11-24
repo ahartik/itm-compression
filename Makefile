@@ -48,6 +48,7 @@ test: extract
 	diff -q c/four-stocks.csv four-stocks.csv
 	diff -q c/shuttle.class shuttle.class
 	diff -q c/kiel.arr kiel.arr
+	./a2p c/kd.arr kd.ppm
 
 clean:
 	rm *.o
