@@ -521,11 +521,14 @@ void ex4_encode() {
         assert(x<EX4_S_HIGH-EX4_S_LOW);
         aen_encode_range(&enc, x, x+1, EX4_S_HIGH-EX4_S_LOW);
     }
-    for(int i=0, block=0; i<5; ++i) {
+    for(int i=0, block=0, prevS=0; i<5; ++i) {
         int s = 16<<i;
         for(int j=1; j<4; ++j, ++block) {
-//            double alpha = alphas[block], beta = betas[block];
+#ifdef EX4_GG
+            double alpha = alphas[block], beta = betas[block];
+#else
             double alpha=0,beta=0;
+#endif
             int sy = s*(j&1), sx = s*(j>>1);
             for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
                 int v = ex4_mat[sy+y][sx+x];
@@ -536,7 +539,8 @@ void ex4_encode() {
                 assert(hi<TOTALPROB);
                 aen_encode_range(&enc, low, hi, TOTALPROB);
             }
-            printf("part %d %d done\n", i, j);
+            printf("part %d %d size: %d\n", i, j, enc.di-prevS);
+            prevS = enc.di;
         }
     }
 

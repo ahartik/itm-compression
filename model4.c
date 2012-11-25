@@ -13,17 +13,19 @@
 #define EX4_MAX_VALUE (EX4_RANGE*MIN_PROB)
 #define EX4_GAUSS_VAR 40.
 #define EX4_GAUSS_RATIO 0.25f
+#define EX4_GG
 
-#if 0
-const float betas[15] = {1.14989,1.65168,1.0686,0.902979,1.10112,1.0686,0.920591,0.82169,1.38698,1.17157,1.17157,1.72755,1.75735,1.44592,1.9328,};
-const float alphas[15] = {158.643,446.424,100.958,59.8716,124.305,55.7026,42.0782,42.6776,48.5472,42.8565,45.2155,48.9007,48.7739,46.7502,48.8775,};
+#ifdef EX4_GG
+const float betas[15] = {1.37056,1.71141,1.06758,0.955131,1.12707,1.14947,0.979452,0.823537,1.47109,1.20927,1.21333,1.75878,1.8126,1.50046,1.96758,};
+const float alphas[15] = {194.984,458.965,100.827,65.5414,128.155,60.9546,46.2135,42.8572,50.9973,44.3452,46.9541,49.454,49.6979,48.1428,49.3484,};
 #endif
 
-static inline uint32_t ex4_sym2prob(int sym, ld alpha, ld beta) {
+static inline uint32_t ex4_sym2prob(double sym, ld alpha, ld beta) {
     const long double fac = TOTALPROB - EX4_MAX_VALUE;
     ld g = cdf(sym/EX4_GAUSS_VAR);
+#ifndef EX4_GG
     return MIN_PROB*(sym-EX4_MIN) + fac * g;
-#if 0
+#else
     double gg = gcdf(sym/alpha, beta);
 //    printf("gg %Lf %Lf %f\n", sym/alpha, beta, gg);
 //    assert(gg>=0);

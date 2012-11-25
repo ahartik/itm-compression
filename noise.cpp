@@ -63,6 +63,7 @@ double tseek(double low, double hi, F fun, int iter=50) {
 }
 double prob(double x, double gaussVar, double gaussRatio, double curA, double curB) {
 	double x0 = x-.5, x1 = x+.5;
+//	double x0 = x-1, x1 = x;
 	double g = cdf(x1/gaussVar) - cdf(x0/gaussVar);
 	double gg = gcdf(x1/curA, curB) - gcdf(x0/curA, curB);
 	assert(!isnan(gg));
@@ -197,7 +198,7 @@ int main() {
 #pragma omp parallel for reduction(+:total)
 	for(int i=0; i<15; ++i) {
 		BetaS s = {i, var, ratio};
-		double beta = tseek(0, 5, s, 10);
+		double beta = tseek(0, 5, s, 20);
 		double cost = s(beta);
 		cout<<"beta "<<i<<" : "<<beta<<" ; "<<cost<<'\n';
 		total += cost;
@@ -205,7 +206,7 @@ int main() {
 	}
 	cout<<"total "<<total<<'\n';
 
-	cout<<"const float betas[15] = {"; for(int i=0; i<15; ++i) cout<<betas[i]<<','; cout<<"};\n";
-	cout<<"const float alphas[15] = {"; for(int i=0; i<15; ++i) cout<<getAlpha(i,betas[i])<<','; cout<<"};\n";
+	cout<<"static const float betas[15] = {"; for(int i=0; i<15; ++i) cout<<betas[i]<<','; cout<<"};\n";
+	cout<<"static const float alphas[15] = {"; for(int i=0; i<15; ++i) cout<<getAlpha(i,betas[i])<<','; cout<<"};\n";
 #endif
 }

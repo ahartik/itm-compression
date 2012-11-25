@@ -1,4 +1,5 @@
 #include<stdint.h>
+#include<stdlib.h>
 #include"model.h"
 #define O_ACCMODE      0003
 #define O_RDONLY         00
@@ -320,16 +321,21 @@ void ex4_extract() {
         ex4_mat[i][j] = EX4_S_LOW + x;
     }
 #if 1
-    for(int i=0; i<5; ++i) {
+    for(int i=0, block=0; i<5; ++i) {
         int s = 16<<i;
-        for(int j=1; j<4; ++j) {
+        for(int j=1; j<4; ++j, ++block) {
+#ifdef EX4_GG
+            double alpha = alphas[block], beta = betas[block];
+#else
+            double alpha=0, beta=0;
+#endif
             int sy = s*(j&1), sx = s*(j>>1);
             for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
                 uint32_t p = ad_read_prob(&dec, TOTALPROB);
-                int s = ex4_prob2sym(p, 0, 0);
+                int s = ex4_prob2sym(p, alpha, beta);
 //                printf("sym: %d\n", sym);
-                uint32_t low = ex4_sym2prob(s, 0, 0);
-                uint32_t hi = ex4_sym2prob(s+1, 0, 0);
+                uint32_t low = ex4_sym2prob(s, alpha, beta);
+                uint32_t hi = ex4_sym2prob(s+1, alpha, beta);
 //                printf("range: %u %u %u\n", low, hi, TOTALPROB);
                 ad_apply_range(&dec, low, hi, TOTALPROB);
 
