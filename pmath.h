@@ -52,7 +52,7 @@ static inline ld gpdf(ld x, ld b) {
 }
 static inline ld gcdf2(ld x, ld b) {
     if (x<0) return 1-gcdf2(-x,b);
-    const int n = 50;
+    const int n = 10;
     ld r = .5;
     ld eps = x/n;
     for(int i=0; i<n; ++i) {
@@ -63,7 +63,7 @@ static inline ld gcdf2(ld x, ld b) {
 }
 
 static inline long double gcdf(ld x,ld b) {
-    if (fabs(x)<.5) return gcdf2(x,b);
+    if (fabs(x)<.2) return gcdf2(x,b);
 //    printf("cdf %Lf\n", x);
 //    if (x==0) return .5;
     double sgn = x < 0 ? -1 : 1;
