@@ -21,6 +21,7 @@ const float alphas[15] = {194.984,458.965,100.827,65.5414,128.155,60.9546,46.213
 #endif
 
 static inline uint32_t ex4_sym2prob(double sym, ld alpha, ld beta) {
+    sym -= .5;
     const long double fac = TOTALPROB - EX4_MAX_VALUE;
     ld g = cdf(sym/EX4_GAUSS_VAR);
 #ifndef EX4_GG
