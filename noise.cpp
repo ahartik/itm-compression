@@ -193,7 +193,7 @@ int main() {
 	double ratio = GaussRatioS()(var);
 	cout<<"result: "<<var<<' '<<ratio<<'\n';
 #else
-	double var = 40, ratio = .25;
+	double var = 37, ratio = .25;
 	double total = 0;
 #pragma omp parallel for reduction(+:total)
 	for(int i=0; i<15; ++i) {
@@ -206,7 +206,13 @@ int main() {
 	}
 	cout<<"total "<<total<<'\n';
 
-	cout<<"static const float betas[15] = {"; for(int i=0; i<15; ++i) cout<<betas[i]<<','; cout<<"};\n";
-	cout<<"static const float alphas[15] = {"; for(int i=0; i<15; ++i) cout<<getAlpha(i,betas[i])<<','; cout<<"};\n";
+	ofstream out("model4_params.h");
+	out<<"#pragma once\n";
+	out<<"#define EX4_GAUSS_VAR "<<var<<'\n';
+	out<<"#ifdef EX4_GG\n";
+	out<<"#define EX4_GAUSS_RATIO "<<ratio<<'\n';
+	out<<"static const float betas[15] = {"; for(int i=0; i<15; ++i) out<<betas[i]<<','; out<<"};\n";
+	out<<"static const float alphas[15] = {"; for(int i=0; i<15; ++i) out<<getAlpha(i,betas[i])<<','; out<<"};\n";
+	out<<"#endif\n";
 #endif
 }

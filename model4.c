@@ -11,13 +11,18 @@
 #define EX4_MAX 1177
 #define EX4_RANGE (EX4_MAX - EX4_MIN)
 #define EX4_MAX_VALUE (EX4_RANGE*MIN_PROB)
+
+#define EX4_GG
+#include "model4_params.h"
+
+#if 0
 #define EX4_GAUSS_VAR 40.
 #define EX4_GAUSS_RATIO 0.25f
-#define EX4_GG
 
 #ifdef EX4_GG
 const float betas[15] = {1.37056,1.71141,1.06758,0.955131,1.12707,1.14947,0.979452,0.823537,1.47109,1.20927,1.21333,1.75878,1.8126,1.50046,1.96758,};
 const float alphas[15] = {194.984,458.965,100.827,65.5414,128.155,60.9546,46.2135,42.8572,50.9973,44.3452,46.9541,49.454,49.6979,48.1428,49.3484,};
+#endif
 #endif
 
 static inline uint32_t ex4_sym2prob(double sym, ld alpha, ld beta) {

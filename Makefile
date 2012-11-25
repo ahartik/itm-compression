@@ -5,11 +5,11 @@ CFLAGS=-Os -m32 -std=gnu99 -Wall -Wno-unused-result
 ECFLAGS=-Os -m32 -nostdlib -fwhole-program -std=gnu99  -flto -Wall -Wno-unused-result -ffast-math -Wl,--build-id=none -fomit-frame-pointer
 DCFLAGS=-g -m32 -std=gnu99 -Wall -Wno-unused-result -DDEBUG -O0
 
-data.o: data.asm ex1_data.bin
+data.o: data.asm ex1_data.bin ex2_data.bin ex4_data.bin
 	nasm $< -f elf
 
-ex1_data.bin: encode
-	./encode
+ex1_data.bin ex2_data.bin ex4_data.bin: encode
+	./$<
 
 read.o: read.asm
 	nasm -f elf $<
