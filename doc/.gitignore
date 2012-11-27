@@ -1,0 +1,8 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+doc.pdf
+ex3_big.pdf
+ex3_small.pdf
