@@ -208,14 +208,21 @@ The size is so small that it didn't seem sensible to compress it more as any any
     \caption{Approximate decision tree}\label{fig:ex3small}
 \end{figure}
 
+\begin{figure}
+	\includegraphics[scale=0.5]{histo1}
+	\includegraphics[scale=0.5]{histo15}
+	\caption{Histograms of the frequencies of different values on two different subbands of the wavelet transform and normal distribution fitted to the data. The left figure shows the smallest subband, where there is a lot of variation that doesn't fit well into normal distribution. The right figure contains the lower left biggest subband, which matches very well with gaussian distribution.}\label{fig:histo}
+\end{figure}
 
 \section{Problem 5}
 
 The fifth task was to denoise a noisy image from its wavelet transform.
 
-The basic approach for wavelet denoising seemed to be simple thresholding. That is, assume that all values in wavelet data with absolute value below certain threshold are noise and set them to 0. We initially tried using a simple constant threshold for all the subbands.
+The basic approach for wavelet denoising is to do simple thresholding \cite{rvs02}. That is, assume that all values in wavelet data with absolute value below certain threshold are noise and set them to 0. We initially tried using a simple constant threshold for all the subbands.
 
 We tried both hard and soft thresholding. Hard thresholding simply sets all values with absolute value less than threshold value $T$ to 0. Soft thresholding does that and also decreases the absolute value of other values by $T$. The results of those approaches are shown in Figure~\ref{fig:constt}. Both approaches either introduced a lot of artifacts to the image or made it very blurry, depending on the choise of $T$.
+
+As constant thresholding didn't produce very good results we tried using the NormalShrink algorithm of \cite{ksc02}. The idea is to choose threshold for every subband depending on the variance of the values on the band, and do soft thresholding based on that. The result is shown in Figure~\ref{fig:normalsht}.
 
 \begin{figure}
 	\centering
@@ -225,7 +232,7 @@ We tried both hard and soft thresholding. Hard thresholding simply sets all valu
 \begin{figure}
 	\centering
 	\includegraphics[scale=0.4]{kd_normalshrink}
-	\caption{Denoising using normalshrink technique of \cite{ksc02}.}\label{fig:normalsht}
+	\caption{Denoising using NormalShrink technique of \cite{ksc02}.}\label{fig:normalsht}
 \end{figure}
 
 
