@@ -26,7 +26,7 @@ extract.o: extract.c data.h
 	${CC} ${ECFLAGS} extract.c  -c
 
 encode: encode.c model.c model2.c model4.c pmath.h
-	${CC} ${CFLAGS} encode.c -o $@ -lm
+	${CC} ${DCFLAGS} encode.c -o $@ -lm
 
 #run: extract unpack.header
 #	7z a -tGZip -mx=9 $<.gz $<

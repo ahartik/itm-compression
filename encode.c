@@ -529,6 +529,7 @@ void ex4_encode() {
 #else
             double alpha=0,beta=0;
 #endif
+            ex4_init_block(block);
             int sy = s*(j&1), sx = s*(j>>1);
             for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
                 int v = ex4_mat[sy+y][sx+x];
@@ -537,6 +538,7 @@ void ex4_encode() {
 //                printf("range %d: %f %f\n", v, (double)low/TOTALPROB, (double)hi/TOTALPROB);
                 assert(low<hi);
                 assert(hi<TOTALPROB);
+                ex4_add_sym(v);
                 aen_encode_range(&enc, low, hi, TOTALPROB);
             }
             printf("part %d %d size: %d\n", i, j, enc.di-prevS);

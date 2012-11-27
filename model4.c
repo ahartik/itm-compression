@@ -12,26 +12,70 @@
 #define EX4_RANGE (EX4_MAX - EX4_MIN)
 #define EX4_MAX_VALUE (EX4_RANGE*MIN_PROB)
 
-#define EX4_GG
+#define EX4_BOX_RADIUS 25
+#define EX4_BOX_BONUS 0.001
+#define EX4_BOX_MIX (2*EX4_BOX_RADIUS*EX4_BOX_BONUS)
+
+//#define EX4_GG
+//#define EX4_HISTOS
 #include "model4_params.h"
 
+static const float gdevs[15] = {195.452,362.49,134.572,105.016,159.407,72.0598,68.4516,88.515,44.6755,47.4234,50.098,37.6865,37.1555,41.2804,35.197,};
+int curBlock;
+static double ex4_histo_arr[EX4_RANGE+1];
+static double* ex4_histo = ex4_histo_arr - EX4_MIN;
+static double ex4_histo_sum = 0;
+static int ex4_pascal_level = 0;
+static inline void ex4_init_block(int block)
+{
+    curBlock = block;
+    ex4_histo_sum = 0;
+    ex4_pascal_level = 2 ; // (14-block)/5;
+    for(int i=EX4_MIN; i <= EX4_MAX; i++)
+    {
+        ex4_histo[i] = 1+100000*
+            (cdf((i+0.5)/gdevs[block]) - cdf((i-0.5)/gdevs[block]));
+        ex4_histo_sum += ex4_histo[i];
+    }
+}
 #if 0
-#define EX4_GAUSS_VAR 40.
-#define EX4_GAUSS_RATIO 0.25f
-
-#ifdef EX4_GG
-const float betas[15] = {1.37056,1.71141,1.06758,0.955131,1.12707,1.14947,0.979452,0.823537,1.47109,1.20927,1.21333,1.75878,1.8126,1.50046,1.96758,};
-const float alphas[15] = {194.984,458.965,100.827,65.5414,128.155,60.9546,46.2135,42.8572,50.9973,44.3452,46.9541,49.454,49.6979,48.1428,49.3484,};
+char pascal[3][5] =
+{
+    {0,0,1,0,0},
+    {0,1,2,1,0},
+    {1,4,6,4,1}
+};
+#else
+//char pascal[] = {1,6,15,20,15,6,1};
+//char pascal[] = {1,7,21,35,35,21,7,1};
+char pascal[] = {1,8,28,56,70,56,28,8,1};
 #endif
-#endif
+static inline void ex4_add_sym(int sym)
+{
+    for(int s = 0;s<9;s++){
+        int add = 10*pascal[s];
+        ex4_histo[sym+s-4]+=add;
+        ex4_histo_sum+=add;
+    }
+}
 
 static inline uint32_t ex4_sym2prob(double sym, ld alpha, ld beta) {
     sym -= .5;
     const long double fac = TOTALPROB - EX4_MAX_VALUE;
-    ld g = cdf(sym/EX4_GAUSS_VAR);
-#ifndef EX4_GG
+#ifdef EX4_HISTOS
+    double cd = 0;
+    for(int i = EX4_MIN; i < sym; i++)
+        cd+=ex4_histo[i];
+    return (ld)TOTALPROB * cd / ex4_histo_sum;
+#elif !defined(EX4_GG)
+    ld g =  (1-EX4_BOX_MIX)*cdf(sym/gdevs[curBlock]);
+    if (sym >= -EX4_BOX_RADIUS) {
+        if (sym > EX4_BOX_RADIUS) g+=EX4_BOX_MIX;
+        else g += EX4_BOX_BONUS*(sym+EX4_BOX_RADIUS);
+    }
     return MIN_PROB*(sym-EX4_MIN) + fac * g;
 #else
+    ld g = cdf(sym/EX4_GAUSS_VAR);
     double gg = gcdf(sym/alpha, beta);
 //    printf("gg %Lf %Lf %f\n", sym/alpha, beta, gg);
 //    assert(gg>=0);
