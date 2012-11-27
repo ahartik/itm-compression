@@ -324,21 +324,17 @@ void ex4_extract() {
     for(int i=0, block=0; i<5; ++i) {
         int s = 16<<i;
         for(int j=1; j<4; ++j, ++block) {
-#ifdef EX4_GG
-            double alpha = alphas[block], beta = betas[block];
-#else
-            double alpha=0, beta=0;
-#endif
             int sy = s*(j&1), sx = s*(j>>1);
             ex4_init_block(block);
             for(int y=0; y<s; ++y) for(int x=0; x<s; ++x) {
                 uint32_t p = ad_read_prob(&dec, TOTALPROB);
-                int s = ex4_prob2sym(p, alpha, beta);
+                int s = ex4_prob2sym(p);
 //                printf("sym: %d\n", sym);
-                uint32_t low = ex4_sym2prob(s, alpha, beta);
-                uint32_t hi = ex4_sym2prob(s+1, alpha, beta);
+                uint32_t low = ex4_sym2prob(s);
+                uint32_t hi = ex4_sym2prob(s+1);
 //                printf("range: %u %u %u\n", low, hi, TOTALPROB);
                 ad_apply_range(&dec, low, hi, TOTALPROB);
+                ex4_add_sym(s);
 
                 ex4_mat[sy+y][sx+x] = s;
             }
@@ -371,7 +367,7 @@ void ex5_extract() {
     int* inp=&ex4_mat[0][0];
     for(int i=0; i<512*512; ++i) *inp++ = readint();
 
-#if 1
+#if 0
     const int T = 80;
     for(int i=0; i<512; ++i) {
         for(int j=0; j<512; ++j) {
