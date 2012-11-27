@@ -208,6 +208,25 @@ The size is so small that it didn't seem sensible to compress it more as any any
     \caption{Approximate decision tree}\label{fig:ex3small}
 \end{figure}
 
+
+\section{Problem 5}
+
+The fifth task was to denoise a noisy image from its wavelet transform.
+
+The basic approach for wavelet denoising seemed to be simple thresholding. That is, assume that all values in wavelet data with absolute value below certain threshold are noise and set them to 0. We initially tried using a simple constant threshold for all the subbands.
+
+We tried both hard and soft thresholding. Hard thresholding simply sets all values with absolute value less than threshold value $T$ to 0. Soft thresholding does that and also decreases the absolute value of other values by $T$. The results of those approaches are shown in Figure~\ref{fig:constt}. Both approaches either introduced a lot of artifacts to the image or made it very blurry, depending on the choise of $T$.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.40]{kd_hard}\includegraphics[scale=0.40]{kd_soft}
+	\caption{Denoising using constant threshold for all bands. Left image shows the result of hard thresholding with threshold value 100, which creates quite a lot of artifacts. Right image uses soft thresholding with value 80, which decreases the amount of artifacts but makes the image quite blurry.}\label{fig:constt}
+\end{figure}
+\begin{figure}
+	\includegraphics{kd_normalshrink}
+\end{figure}
+
+
 \section{Optimizing the executable size}
 
 As the goal was to minimize total package size, we decided to use C to have as small binary size as possible.
