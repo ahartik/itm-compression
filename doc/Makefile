@@ -5,4 +5,5 @@ $(PLOTS): %.pdf: %.dot
 
 doc.pdf:doc.tex $(PLOTS)
 	pdflatex doc.tex
+	bibtex doc
 	pdflatex doc.tex

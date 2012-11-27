@@ -223,7 +223,9 @@ We tried both hard and soft thresholding. Hard thresholding simply sets all valu
 	\caption{Denoising using constant threshold for all bands. Left image shows the result of hard thresholding with threshold value 100, which creates quite a lot of artifacts. Right image uses soft thresholding with value 80, which decreases the amount of artifacts but makes the image quite blurry.}\label{fig:constt}
 \end{figure}
 \begin{figure}
-	\includegraphics{kd_normalshrink}
+	\centering
+	\includegraphics[scale=0.4]{kd_normalshrink}
+	\caption{Denoising using normalshrink technique of \cite{ksc02}.}\label{fig:normalsht}
 \end{figure}
 
 
@@ -235,7 +237,7 @@ On linux linking to the standard library increases binary size quite a lot, so w
 
 
 
-%\bibliographystyle{abbrv}\bibliography{ref}
+\bibliographystyle{abbrv}\bibliography{doc}
 
 %\appendix
 
