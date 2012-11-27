@@ -210,11 +210,11 @@ The size is so small that it didn't seem sensible to compress it more as any any
 
 \section{Task 4}
 
-Fourth task was to compress a wavelet transform of an image. In the wavelet form noise spreads
+In the fourth task we were asked to compress a wavelet transform of an image. In the wavelet form noise spreads
 uniformly over the whole matrix while the signal might have different distributions in different subbands.
 
 Simplest model we tried was to fit normal distribution to each subband of the matrix and use arithmetic coding.
-With this model the code length of the data was 243~KiB. How normal distributions fit actual data can be seen in figure \ref{fig:histo}.
+With this model the code length of the data was 243~KiB. How normal distributions fit actual data can be seen in Figure~\ref{fig:histo}.
 
 \begin{figure}
 	\includegraphics[scale=0.5]{histo1}
@@ -224,11 +224,13 @@ With this model the code length of the data was 243~KiB. How normal distribution
 
 Second model we tried was a mixture of normal distribution and generalized gaussian distribution. This was more complex
 as we need to compute the optimal $\beta$ and mixture ratio for each subband. We used nested ternary searches to find optimal parameters.
-This took about 24 hours of computing on ukko cluster. Resulting code length is 242~KiB -- about one KiB less than with simlpe normal distributions.
+This took about 24 hours of computing on ukko cluster. Resulting code length was 242~KiB -- about one KiB less than with simple normal distributions.
 The length of the decompression algorithm outweighted the gains in code length and the resulting executable size was slightly
 greater than with the normal distribution model.
 
-We also tried simple adaptive model. For each number processed we increased the probabilities of nearby values. This produced code length of about 250~KiB.
+We also tried a simple adaptive model.
+For each number processed we increased the probabilities of nearby values.
+This produced code length of about 250~KiB.
 By initializing the probabilities values from appropriate normal distribution we got the code length to about 242~KiB.
 (( Again the increase in algorithm complexity outweighted the gains in code length)?)
 
