@@ -86,9 +86,9 @@ It can be seen that there are some large negative peaks, but otherwise the diffe
 The same behavior can be observed for each of the stocks.
 
 \begin{figure}
-	\subfigure[Original data]{\includegraphics[scale=0.5]{ex2_orig.pdf}\label{fig:ex2o}}
-	\subfigure[Differences of consecutive values]{\includegraphics[scale=0.5]{ex2_diff.pdf}\label{fig:ex2d}}
-	\caption{Plot of the first column of the data and the differences between its consecutive values. The original data shows a lot of irregularities, but except for a few peaks, the changes between consecutive values are quite small.}
+    \subfigure[Original data]{\includegraphics[scale=0.5]{ex2_orig.pdf}\label{fig:ex2o}}
+    \subfigure[Differences of consecutive values]{\includegraphics[scale=0.5]{ex2_diff.pdf}\label{fig:ex2d}}
+    \caption{Plot of the first column of the data and the differences between its consecutive values. The original data shows a lot of irregularities, but except for a few peaks, the changes between consecutive values are quite small.}
 \end{figure}
 
 The connection between the four stocks changes didn't seem very simple so we decided to try simply compressing each of the stocks separately.
@@ -129,9 +129,9 @@ Since for all four stock there were much more multiplied of $\frac{1}{8}$ in the
 Using this approach with an adaptive encoding we were able to reduce the data size for fractional parts to 21364~bytes from the original 24555.
 
 \begin{figure}
-	\includegraphics[scale=0.5]{frac.pdf}
-	\caption{Frequencies of different fractional values. It can be seen that multiplies of $\frac{1}{4}$ are very frequent. Multiplies of $\frac{1}{8}$ are also common, but they can't be represented exactly using just 2 decimals and they appear in the data using both of the possible roundings.}
-	\label{fig:frac}
+    \includegraphics[scale=0.5]{frac.pdf}
+    \caption{Frequencies of different fractional values. It can be seen that multiplies of $\frac{1}{4}$ are very frequent. Multiplies of $\frac{1}{8}$ are also common, but they can't be represented exactly using just 2 decimals and they appear in the data using both of the possible roundings.}
+    \label{fig:frac}
 \end{figure}
 
 \subsection {More complicated models}
@@ -197,14 +197,14 @@ The size is so small that it didn't seem sensible to compress it more as any any
 
 \begin{figure}
     %\begin{center}
-	\centerline{\includegraphics[width=1.3\textwidth]{ex3_big.pdf}}
+    \centerline{\includegraphics[width=1.3\textwidth]{ex3_big.pdf}}
     %\end{center}
     \caption{Exact decision tree}\label{fig:ex3big}
 \end{figure}
 
 \begin{figure}
     \begin{center}
-	\includegraphics[scale=0.5]{ex3_small.pdf}
+    \includegraphics[scale=0.5]{ex3_small.pdf}
     \end{center}
     \caption{Approximate decision tree}\label{fig:ex3small}
 \end{figure}
@@ -218,9 +218,9 @@ The simplest model we tried was to fit normal distribution to each subband of th
 With this model the code length of the data was 240~KiB. The normal distribution fits the large subbands quite well, but not that well for the smaller ones, as can be seen in Figure~\ref{fig:histo}.
 
 \begin{figure}
-	\includegraphics[scale=0.5]{histo1}
-	\includegraphics[scale=0.5]{histo15}
-	\caption{Histograms of the frequencies of different values on two different subbands of the wavelet transform and normal distribution fitted to the data. The left figure shows one of the smallest subbands, where there is a lot of variation that doesn't fit well into normal distribution. The right figure contains the lower right biggest subband, which matches very well with the gaussian distribution.}\label{fig:histo}
+    \includegraphics[scale=0.5]{histo1}
+    \includegraphics[scale=0.5]{histo15}
+    \caption{Histograms of the frequencies of different values on two different subbands of the wavelet transform and normal distribution fitted to the data. The left figure shows one of the smallest subbands, where there is a lot of variation that doesn't fit well into normal distribution. The right figure contains the lower right biggest subband, which matches very well with the gaussian distribution.}\label{fig:histo}
 \end{figure}
 
 The second model we tried was a mixture of normal distribution and generalized gaussian distribution. This was more complex
@@ -246,23 +246,28 @@ We tried both hard and soft thresholding. Hard thresholding simply sets all valu
 As constant thresholding didn't produce very good results we tried using the NormalShrink algorithm of \cite{ksc02}. The idea is to choose threshold for every subband depending on the variance of the values on the band, and do soft thresholding based on that. The result is shown in Figure~\ref{fig:normalsht}.
 
 \begin{figure}
-	\centering
-	\includegraphics[scale=0.40]{kd_hard}\includegraphics[scale=0.40]{kd_soft}
-	\caption{Denoising using constant threshold for all bands. Left image shows the result of hard thresholding with threshold value 100, which creates quite a lot of artifacts. Right image uses soft thresholding with value 80, which decreases the amount of artifacts but makes the image quite blurry.}\label{fig:constt}
+    \centering
+    \includegraphics[scale=0.40]{kd_hard}\includegraphics[scale=0.40]{kd_soft}
+    \caption{Denoising using constant threshold for all bands. Left image shows the result of hard thresholding with threshold value 100, which creates quite a lot of artifacts. Right image uses soft thresholding with value 80, which decreases the amount of artifacts but makes the image quite blurry.}\label{fig:constt}
 \end{figure}
 \begin{figure}
-	\centering
-	\includegraphics[scale=0.4]{kd_normalshrink}
-	\caption{Denoising using NormalShrink technique of \cite{ksc02}.}\label{fig:normalsht}
+    \centering
+    \includegraphics[scale=0.4]{kd_normalshrink}
+    \caption{Denoising using NormalShrink technique of \cite{ksc02}.}\label{fig:normalsht}
 \end{figure}
 
 \section{Optimizing the executable size}
 
 As the goal was to minimize total package size, we decided to use C to have as small binary size as possible.
+We also thought about the possibility of using a more high level language and including the source instead, but minimizing source size would have made coding quite stressing or required some special tools that we weren't familiar with.
+
 On linux linking to the standard library increases binary size quite a lot,
 so we avoided using it and implemented input and output in Assembly with system calls instead.
-Only library we linked to was the standard math library.
+The arithmetic coding required division and the C~compiler generated calls to library functions from divisions, so we also replaced them by calls to a custom division function taken from the Linux kernel sources.
 
+Even though we avoided using libraries as much as possible, we ended up linking against the standard math library.
+The reason was that we needed the cumulative distribution function for the normal distribution for Gaussian models in tasks 2 and 4.
+As there is no closed form solution for the CDF of normal distribution, it is not trivial to implement by hand, but it can easily be computed using the error function, which is included in the standard math library.
 
 
 
