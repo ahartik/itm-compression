@@ -6,11 +6,12 @@
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{subfigure}
+\usepackage{fullpage}
 
 \newcommand{\code}{\texttt}
 
 \title{Project in Information-Theoretic Modeling Final Report}
-\author{Aleksi Hartikainen \and Mikko Sysikaski}
+%\author{Aleksi Hartikainen \and Mikko Sysikaski}
 
 \begin{document}
 \maketitle
@@ -178,7 +179,7 @@ That is, it was possible to create a perfect classifier that detected the class 
 
 We created a simple decision tree learner to see how well we could classify the data with a simple tree.
 Each node of the decision tree contained a test about whether some element of the side data was smaller than a given value, and each leave contained the class that were most common among the items in the noed.
-We used the standard decision tree learning technique of choosing the test that maximizes the information gain of the test, which is equal to minimizing the entropy of the resulting two classes.
+We used the standard decision tree learning technique of choosing the test that maximizes the information gain of the test, which is equal to minimizing the entropy of the resulting two classes \cite{aima}.
 The algorithm iterates over all possible ways to split the nodes and chooses the best way and recursively advances to split the resulting two sets.
 
 The decision tree learning worked suprisingly well.
@@ -196,7 +197,7 @@ The size is so small that it didn't seem sensible to compress it more as any any
 
 \begin{figure}
     %\begin{center}
-	\centerline{\includegraphics[width=1.7\textwidth]{ex3_big.pdf}}
+	\centerline{\includegraphics[width=1.3\textwidth]{ex3_big.pdf}}
     %\end{center}
     \caption{Exact decision tree}\label{fig:ex3big}
 \end{figure}
