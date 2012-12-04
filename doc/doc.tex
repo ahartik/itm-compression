@@ -210,29 +210,29 @@ The size is so small that it didn't seem sensible to compress it more as any any
 
 \section{Task 4}
 
-In the fourth task we were asked to compress a wavelet transform of an image. In the wavelet form noise spreads
+In the fourth task we were asked to compress an image in wavelet transformed form. In the wavelet form noise spreads
 uniformly over the whole matrix while the signal might have different distributions in different subbands.
 
-Simplest model we tried was to fit normal distribution to each subband of the matrix and use arithmetic coding.
-With this model the code length of the data was 243~KiB. How normal distributions fit actual data can be seen in Figure~\ref{fig:histo}.
+The simplest model we tried was to fit normal distribution to each subband of the matrix and use arithmetic coding.
+With this model the code length of the data was 240~KiB. The normal distribution fits the large subbands quite well, but not that well for the smaller ones, as can be seen in Figure~\ref{fig:histo}.
 
 \begin{figure}
 	\includegraphics[scale=0.5]{histo1}
 	\includegraphics[scale=0.5]{histo15}
-	\caption{Histograms of the frequencies of different values on two different subbands of the wavelet transform and normal distribution fitted to the data. The left figure shows the smallest subband, where there is a lot of variation that doesn't fit well into normal distribution. The right figure contains the lower left biggest subband, which matches very well with gaussian distribution.}\label{fig:histo}
+	\caption{Histograms of the frequencies of different values on two different subbands of the wavelet transform and normal distribution fitted to the data. The left figure shows one of the smallest subbands, where there is a lot of variation that doesn't fit well into normal distribution. The right figure contains the lower right biggest subband, which matches very well with the gaussian distribution.}\label{fig:histo}
 \end{figure}
 
-Second model we tried was a mixture of normal distribution and generalized gaussian distribution. This was more complex
+The second model we tried was a mixture of normal distribution and generalized gaussian distribution. This was more complex
 as we need to compute the optimal $\beta$ and mixture ratio for each subband. We used nested ternary searches to find optimal parameters.
-This took about 24 hours of computing on ukko cluster. Resulting code length was 242~KiB -- about one KiB less than with simple normal distributions.
+This took about 24 hours of computing on ukko cluster. Resulting code length was 239~KiB -- about one KiB less than with simple normal distributions.
 The length of the decompression algorithm outweighted the gains in code length and the resulting executable size was slightly
 greater than with the normal distribution model.
 
 We also tried a simple adaptive model.
 For each number processed we increased the probabilities of nearby values.
-This produced code length of about 250~KiB.
-By initializing the probabilities values from appropriate normal distribution we got the code length to about 242~KiB.
-(( Again the increase in algorithm complexity outweighted the gains in code length)?)
+This produced code length of about 240~KiB.
+By initializing the probabilities values from appropriate normal distribution we got the code length to about 239~KiB.
+Again the increase in algorithm complexity outweighted the gains in code length.
 
 \section{Problem 5}
 
