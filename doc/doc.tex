@@ -220,10 +220,10 @@ With this model the code length of the data was 240~KiB. The normal distribution
 \begin{figure}
     \includegraphics[scale=0.5]{histo1}
     \includegraphics[scale=0.5]{histo15}
-    \caption{Histograms of the frequencies of different values on two different subbands of the wavelet transform and normal distribution fitted to the data. The left figure shows one of the smallest subbands, where there is a lot of variation that doesn't fit well into normal distribution. The right figure contains the lower right biggest subband, which matches very well with the gaussian distribution.}\label{fig:histo}
+    \caption{Histograms of the frequencies of different values on two different subbands of the wavelet transform and normal distribution fitted to the data. The left figure shows one of the smallest subbands, where there is a lot of variation that doesn't fit well into normal distribution. The right figure contains the lower right biggest subband, which matches very well with the Gaussian distribution.}\label{fig:histo}
 \end{figure}
 
-The second model we tried was a mixture of normal distribution and generalized gaussian distribution. This was more complex
+The second model we tried was a mixture of normal distribution and generalized Gaussian distribution. This was more complex
 as we need to compute the optimal $\beta$ and mixture ratio for each subband. We used nested ternary searches to find optimal parameters.
 This took about 24 hours of computing on ukko cluster. Resulting code length was 239~KiB -- about one KiB less than with simple normal distributions.
 The length of the decompression algorithm outweighted the gains in code length and the resulting executable size was slightly
