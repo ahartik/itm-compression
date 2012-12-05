@@ -243,7 +243,7 @@ The basic approach for wavelet denoising is to do simple thresholding \cite{rvs0
 
 We tried both hard and soft thresholding. Hard thresholding simply sets all values with absolute value less than threshold value $T$ to 0. Soft thresholding does that and also decreases the absolute value of other values by $T$. The results of those approaches are shown in Figure~\ref{fig:constt}. Both approaches either introduced a lot of artifacts to the image or made it very blurry, depending on the choise of $T$.
 
-As constant thresholding didn't produce very good results we tried using the NormalShrink algorithm of \cite{ksc02}. The idea is to choose threshold for every subband depending on the variance of the values on the band, and do soft thresholding based on that. The result is shown in Figure~\ref{fig:normalsht}.
+As constant thresholding didn't produce very good results we tried using the NormalShrink algorithm of \cite{ksc02}. The idea is to choose threshold for every subband $i$ using the formula $C/\sigma_i$, where $\sigma_i$ is the standard deviation of subband $i$ and $C$ is a constant that matches the overall variance of the image. After the threshold values have been computed, soft thresholding is used in each subband. The result is shown in Figure~\ref{fig:normalsht}.
 
 \begin{figure}
     \centering
