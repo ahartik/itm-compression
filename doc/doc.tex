@@ -111,7 +111,8 @@ Updating the variance on peaks made encoding the values following it take signif
 Updating only at small changes saved several hundreds of bytes.
 
 To compress all four stocks, we simply concatenated their numbers into one array to simplify the implementation.
-Doing this and compressing the array using the model described above gave us total data size 44975 bytes.
+Concatenating causes the values to jump when the stock to be encoded changes, but as the data had several jumps anyway, this didn't cause any additional problems.
+Doing the concatenation and compressing the array using the model described above gave us total data size 44975 bytes.
 
 \subsection{Compressing fractions and whole integers separately}
 
