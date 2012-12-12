@@ -78,10 +78,10 @@ The second task was to compress data consisting of stock prices of four differen
 The data consisted of floating point values with two decimals.
 As we didn't want to think about floating point accuracy issues, we simply converted the initial data to integers by multiplying the values by 100 and divided our final result again by 100 before outputting it.
 
-All the prices were under 500 so they can be stored as 16-bit integers.
-Thus a trivial storing the data without any proper compression gives a total size of about 81~KiB.
+All the prices were under 500 (and under 50,000 after scaling) so they could be stored as 16-bit integers.
+Thus trivially storing the data without any proper compression gives a total size of about 81~KiB.
 
-To find a good compression scheme, we initially tried plotting the data, as shown in Figure~\ref{fig:ex2o}.
+To search for a good compression scheme, we initially tried plotting the data, displayed in Figure~\ref{fig:ex2o}.
 As there was no immedient regularity to be seen, we tried seeing how the values change by taking the differences of adjacent values, shown in Figure~\ref{fig:ex2d}.
 It can be seen that there are some large negative peaks, but otherwise the differences stay close to zero.
 The same behavior can be observed for each of the stocks.
@@ -93,22 +93,22 @@ The same behavior can be observed for each of the stocks.
     \caption{Plot of the first column of the data and the differences between its consecutive values. The original data shows a lot of irregularities, but except for a few peaks, the changes between consecutive values are quite small.}
 \end{figure}
 
-The connection between the four stocks changes didn't seem very simple so we decided to try simply compressing each of the stocks separately.
-As our tests suggested that the differences between adjacent values are close to zero, we used a simple Gaussian model with mean equal to the previous value to calculate the probabilities for each value that where used in the arithmetic coding.
+The connection between the four stocks changes didn't seem very simple so we decided to try simply compressing each of the stocks one by one.
+As our figures suggested that the differences between adjacent values are close to zero, we used a simple Gaussian model with mean equal to the previous value to calculate the probabilities for each value that where used in the arithmetic coding.
 
 It seemed that the variance of the values varied quite a lot over time, so we used an adaptive scheme to decide the variance used by the normal distribution to compress each value.
-The scheme works by maintaining a current approximation of variance $v_n$ and calculating new approximation $v_{n+1}$ each time we process a new value $x_{n+1}$.
-The approximation is updated by taking weighted average using the formula $v_{n+1} = \frac{Lv_n + (x_{n+1}-x_n)^2}{L+1}$, where $L$ is a constant that decides how quickly the value changes.
+The scheme works by maintaining a current approximation of variance $\sigma^2_n$ and calculating new approximation $\sigma^2_{n+1}$ each time we process a new value $x_{n+1}$.
+The approximation is updated by taking weighted average using the formula $\sigma^2_{n+1} = \frac{L\sigma^2_n + (x_{n+1}-x_n)^2}{L+1}$, where $L$ is a constant that decides how quickly the value changes.
 We experimented with different values and saw that picking $L=10$ gives generally good results.
 
 The Gaussian model with adaptive variance had a problem that the probability of the peaks is extremely low, around $10^{-100}$.
-As our arithmetic coding uses 32-bit integers, it is impossible to cope with probabilities smaller than $2^{-30}$.
-To fix this, we added a constant $2^{-30}$ to probabilities of all values and scaled the normal distribution probabilities so that the total probability still sums to 1.
+As our arithmetic coding uses 32-bit integers, it is impossible to cope with probabilities smaller than $2^{-30}$ \cite{arith}.
+To fix this, we changed to a mixture model where the probability of each value is the sum of a constant $2^{-30}$ and an accordingly scaled Gaussian distribution.
 As the largest number in the data (after converting to integers) was 45100, we only needed to add the constant to first 45101 integers, and scale the original probabilities by $\frac{2^{30}-45101}{2^{30}} \approx 0.999953$.
 This factor is so close to 1 that it doesn't hinder the overall compression quality much, while adding the constant guarantees that any value can be encoded using no more than 30 bits.
 We later noticed that increasing the constant further doesn't hinder the overall compression efficiency much, so we increased it to about $2^{-20}$ and decreased the scaling factor accordingly, which saved some dozens of bytes in encoding the peak values.
 
-Another improvement with regard to the peaks was to not update the variance when the value changed too much.
+Another improvement with regard to the peak values was to not update the variance when the value changes too much.
 Updating the variance on peaks made encoding the values following it take significantly more space than necessary.
 Updating only at small changes saved several hundreds of bytes.
 
@@ -123,12 +123,13 @@ Figure~\ref{fig:frac} displays the frequencies of different decimal parts.
 As the differences were very big it made sense to try to take them into account in the distribution used in arithmetic coding.
 
 The probabilities used during arithmetic coding are defined by a cumulative distribution function, and it seemed tricky to use this observation there without doing a lot of extra computation.
-To avoid computation cost, we tried to simply encode the fractional parts and the whole parts separately.
-The whole numbers where encoded using the Gaussian distribution described above, using 13086~bytes.
+To avoid slowing the program too much, we decided to simply encode the fractional parts and the whole parts separately.
+The whole numbers where encoded using the mixture distribution described above, which took 13086~bytes.
 The fractional parts where encoded with a simple distribution that assumed that the probability of each symbol is proportional to the number of times it has previously been encountered, plus a small constant to avoid 0-probabilities.
 This costed 24555~bytes, for a total size of 37641~bytes.
 
 Since for all four stock there were much more multiplied of $\frac{1}{8}$ in the beginning of the data than towards the end, it made sense to encode the numbers in row-major order to exploit the changing distribution.
+We also noticed that counting the occurrences of different values from the beginning made the encoding very slow to adapt to changes after a lot of values had been encoded, so we changed to use a sliding window that only looks at the last 800 values to decide the probabilities.
 Using this approach with an adaptive encoding we were able to reduce the data size for fractional parts to 21364~bytes from the original 24555.
 
 \begin{figure}
@@ -141,17 +142,17 @@ Using this approach with an adaptive encoding we were able to reduce the data si
 \subsection {More complicated models}
 We also tried fitting more complicated models to the data.
 Simple polynomial fits gave significantly worse results than the first model.
-Trying to fit polynomial to the difference data proved difficult as
+Trying to fit polynomial to the difference data proved difficult as the ratio of noise to regularities in the data was very high.
 
 One possible improvement to the first model we tried was to take average difference
-from couple of last stock values. We used this value to predict the next change.
-This approach produced few bytes longer codelength than the first model so we
+from some number of last stock values. We used this value to predict how much the stock price changes next.
+This approach produced a few dozens of bytes longer codelength than the original model (which assumed 0-change) so we
 abandoned the idea.
-Suprisingly, however, adding a small constant value to the mean location of the normal distribution improved the compressed size by about 1~kilobyte.
+Suprisingly, however, adding a small constant value to the mean value of the normal distribution improved the compressed size by about 1~kilobyte.
 
-Next model we considered was discrete cosine transform.
-With low number of coefficients results were clearly worse than from the first model.
-With 1000 coefficients theoretical codelength was approximately the same as the first model.
+The next model we tried was discrete cosine transform.
+With a low number of coefficients the results were clearly worse than those of the first model.
+With 1000 coefficients the theoretical codelength was approximately the same as the first model, but implementing the DCT and encoding the coefficients would have taken much more space than the simple approach, so we decided not to use it either.
 
 \begin{figure}
 \begin{center}
@@ -184,20 +185,21 @@ That is, it was possible to create a perfect classifier that detected the class 
 We created a simple decision tree learner to see how well we could classify the data with a simple tree.
 Each node of the decision tree contained a test about whether some element of the side data was smaller than a given value, and each leave contained the class that were most common among the items in the noed.
 We used the standard decision tree learning technique of choosing the test that maximizes the information gain of the test, which is equal to minimizing the entropy of the resulting two classes \cite{aima}.
-The algorithm iterates over all possible ways to split the nodes and chooses the best way and recursively advances to split the resulting two sets.
+As we didn't have to worry about overfitting or encoding efficiency, our algorithm simply iterates over all possible ways to split the nodes and chooses the best way, and recursively proceeds to split the resulting two sets.
 
 The decision tree learning worked suprisingly well.
 It turned out that the tree shown in Figure~\ref{fig:ex3small} with only 4 interior nodes was able to classify the data with precision 99.4379\%.
 With 26 interior nodes the tree shown in Figure~\ref{fig:ex3big} was able to perfectly classify the input data.
 The tree was so small that it didn't make sense to design any complex compression scheme for it.
 Instead we just outputted the tree as C code to minimize the overhead of using the tree.
-Thus our final code just read the side data from file and computed the classes using the code generated by the learning algorithm.
+Thus our solution to the task just read the side data from file and computed the classes using the code generated by the learning algorithm.
 
-The C compiler produced quite a large code for the generated decision tree code, a few hundred bytes.
+The C compiler produced quite a large binary for the generated decision tree code, a few hundred bytes.
 To reduce this size we changed from generating C code into storing the tree compactly in an array.
-The array contains 4 bytes for each internal tree node: 1 byte for indicating each of the two children, 4 bits to indicate the variable to be tested and 12 bits for the value that the variable is compared against.
+The array contains 4 bytes for each internal tree node: 8~bits for indicating each of the two children, 4~bits to indicate the variable to be tested and 12~bits for the constant that the variable is compared against.
 Thus the total data size of the tree of 26~nodes is just 104~bytes.
-The size is so small that it didn't seem sensible to compress it more as any any decompression code would require more space than the saving archieved by compression.
+It might have been possible to make the tree even smaller by encoding it using arithmetic coding and exploiting the fact that the range of the constant that a variable is compared against depends on which of the variables is compared.
+However, the size was already so small that we estimated that the decompression code would have taken more space than the possible savings.
 
 \begin{figure}
     %\begin{center}
@@ -219,7 +221,7 @@ In the fourth task we were asked to compress an image in wavelet transformed for
 uniformly over the whole matrix while the signal might have different distributions in different subbands.
 
 The simplest model we tried was to fit normal distribution to each subband of the matrix and use arithmetic coding.
-With this model the code length of the data was 240~KiB. The normal distribution fits the large subbands quite well, but not that well for the smaller ones, as can be seen in Figure~\ref{fig:histo}.
+With this model the code length of the data was 240~KiB. The normal distribution fits the large subbands quite well, but not that well for the smaller ones, as can be seen in Figure~\ref{fig:histo}. Compressing each of the largest subbands took about 59~KiB, so the smaller ones required slightly more space but the difference was not very significant.
 
 \begin{figure}
     \centering
@@ -229,9 +231,10 @@ With this model the code length of the data was 240~KiB. The normal distribution
 \end{figure}
 
 The second model we tried was a mixture of normal distribution and generalized Gaussian distribution. This was more complex
-as we need to compute the optimal $\beta$ and mixture ratio for each subband. We used nested ternary searches to find optimal parameters.
-This took about 24 hours of computing on ukko cluster. Resulting code length was 239~KiB -- about one KiB less than with simple normal distributions.
-The length of the decompression algorithm outweighted the gains in code length and the resulting executable size was slightly
+as we need to compute the optimal $\beta$ and mixture ratio for each subband. We used nested ternary searches to find the optimal parameters.
+This took about 24 hours to compute on the Ukko cluster. Resulting code length was 239~KiB -- about one KiB less than with simple normal distributions.
+Using the generalized Gaussian distribution involved quite a lot more code than the regular Gaussian, as the CDF of the distribution couldn't be simply implemented using standard library functions, and we had to use a custom implementation of the lower gamma function.
+As a result, the length of the decompression algorithm outweighted the gains in code length and the resulting executable size was slightly
 greater than with the normal distribution model.
 
 We also tried a simple adaptive model.
@@ -248,7 +251,7 @@ The basic approach for wavelet denoising is to do simple thresholding \cite{rvs0
 
 We tried both hard and soft thresholding. Hard thresholding simply sets all values with absolute value less than threshold value $T$ to 0. Soft thresholding does that and also decreases the absolute value of other values by $T$. The results of those approaches are shown in Figure~\ref{fig:constt}. Both approaches either introduced a lot of artifacts to the image or made it very blurry, depending on the choise of $T$.
 
-As constant thresholding didn't produce very good results we tried using the NormalShrink algorithm of \cite{ksc02}. The idea is to choose threshold for every subband $i$ using the formula $C/\sigma_i$, where $\sigma_i$ is the standard deviation of subband $i$ and $C$ is a constant that matches the overall variance of the image. After the threshold values have been computed, soft thresholding is used in each subband. The result is shown in Figure~\ref{fig:normalsht}.
+As constant thresholding didn't produce very good results we tried using the NormalShrink algorithm of \cite{ksc02}. The idea is to choose threshold for every subband $i$ using the formula $C/\sigma_i$, where $\sigma_i$ is the standard deviation of subband $i$ and $C$ is a constant that matches the overall variance of the image. After the threshold values have been computed, soft thresholding is used in each subband. The result, shown in Figure~\ref{fig:normalsht}, looked much better than anything else we tried so we opted to use this approach.
 
 \begin{figure}
     \centering
@@ -264,11 +267,11 @@ As constant thresholding didn't produce very good results we tried using the Nor
 \section{Optimizing the executable size}
 
 As the goal was to minimize total package size, we decided to use C to have as small binary size as possible.
-We also thought about the possibility of using a more high level language and including the source instead, but minimizing source size would have made coding quite stressing or required some special tools that we weren't familiar with.
+We also thought about the possibility of using a more high level language and including the source instead, but minimizing source size would have made coding quite stressing (as eg. all identifiers would need to be as short as possible) or required some special tools that we weren't familiar with.
 
 On linux linking to the standard library increases binary size quite a lot,
 so we avoided using it and implemented input and output in Assembly with system calls instead.
-The arithmetic coding required division and the C~compiler generated calls to library functions from divisions, so we also replaced them by calls to a custom division function taken from the Linux kernel sources.
+The arithmetic coding required 64-bit division and the C~compiler generated calls to library functions from those, so we also replaced them by calls to a division function taken from the Linux kernel sources.
 
 Even though we avoided using libraries as much as possible, we ended up linking against the standard math library.
 The reason was that we needed the cumulative distribution function for the normal distribution for Gaussian models in tasks 2 and 4.
