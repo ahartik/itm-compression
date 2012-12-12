@@ -87,6 +87,7 @@ It can be seen that there are some large negative peaks, but otherwise the diffe
 The same behavior can be observed for each of the stocks.
 
 \begin{figure}
+    \centering
     \subfigure[Original data]{\includegraphics[scale=0.5]{ex2_orig.pdf}\label{fig:ex2o}}
     \subfigure[Differences of consecutive values]{\includegraphics[scale=0.5]{ex2_diff.pdf}\label{fig:ex2d}}
     \caption{Plot of the first column of the data and the differences between its consecutive values. The original data shows a lot of irregularities, but except for a few peaks, the changes between consecutive values are quite small.}
@@ -131,6 +132,7 @@ Since for all four stock there were much more multiplied of $\frac{1}{8}$ in the
 Using this approach with an adaptive encoding we were able to reduce the data size for fractional parts to 21364~bytes from the original 24555.
 
 \begin{figure}
+    \centering
     \includegraphics[scale=0.5]{frac.pdf}
     \caption{Frequencies of different fractional values. It can be seen that multiplies of $\frac{1}{4}$ are very frequent. Multiplies of $\frac{1}{8}$ are also common, but they can't be represented exactly using just 2 decimals and they appear in the data using both of the possible roundings.}
     \label{fig:frac}
@@ -220,6 +222,7 @@ The simplest model we tried was to fit normal distribution to each subband of th
 With this model the code length of the data was 240~KiB. The normal distribution fits the large subbands quite well, but not that well for the smaller ones, as can be seen in Figure~\ref{fig:histo}.
 
 \begin{figure}
+    \centering
     \includegraphics[scale=0.5]{histo1}
     \includegraphics[scale=0.5]{histo15}
     \caption{Histograms of the frequencies of different values on two different subbands of the wavelet transform and normal distribution fitted to the data. The left figure shows one of the smallest subbands, where there is a lot of variation that doesn't fit well into normal distribution. The right figure contains the lower right biggest subband, which matches very well with the Gaussian distribution.}\label{fig:histo}
