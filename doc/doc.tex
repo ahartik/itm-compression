@@ -34,7 +34,7 @@ The task suggested using arithmetic coding with probabilities from the given mod
 Instead of using the probabilities from the model definition, we computed actual conditional frequencies from the data.
 That is, for every tuple $(x_1,x_2,x_3,x_4)$ we counted how many times $x_0$ is 0 and 1, and this gave us the conditional probability of $x_0$ with respect to the other variables.
 The calculated probabilities are shown in Figure~\ref{ex1_probs}.
-The original model was defined using just 8~values, whereas we had to store 16~conditional probabilities, each taking 4~bytes of space.
+The original model was defined using just 10~local probabilities, whereas we had to store 16~conditional probabilities, each taking 4~bytes of space.
 However, storing the conditional probabilities allowed us to use them directly in arithmetic coding, whereas working with the graphical model would have increased the code size significantly.
 
 We created a custom implementation of arithmetic coding that used the computed conditional probabilities to encode each bit. The implementation represents the bounds of the current range using 32-bit integers, and uses the techniques detailed in \cite{arith} to avoid underflows, allowing it to work with probabilities as small as $2^{-30}$. The same implementation was also used in later tasks.
