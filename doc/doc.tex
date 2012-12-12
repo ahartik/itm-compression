@@ -30,15 +30,17 @@ The file to be compressed had $100\,000$ binary digits, so trivially packing the
 For comparison, we also tried packing the data this way as the decompression code becomes much smaller and simpler.
 This gave a total size of around 13.5~KiB uncompressed, and 12.5~KiB after compressing with gzip.
 
-The task was to use arithmetic coding with probabilities from the given model.
-Instead of using probabilities from model definition, we computed actual conditional frequencies from the data.
+The task suggested using arithmetic coding with probabilities from the given model.
+Instead of using the probabilities from the model definition, we computed actual conditional frequencies from the data.
 That is, for every tuple $(x_1,x_2,x_3,x_4)$ we counted how many times $x_0$ is 0 and 1, and this gave us the conditional probability of $x_0$ with respect to the other variables.
 The calculated probabilities are shown in Figure~\ref{ex1_probs}.
+The original model was defined using just 8~values, whereas we had to store 16~conditional probabilities, each taking 4~bytes of space.
+However, storing the conditional probabilities allowed us to use them directly in arithmetic coding, whereas working with the graphical model would have increased the code size significantly.
 
-We created a custom implementation of arithmetic coding that used the conditional probabilities of Figure~\ref{ex1_probs} to encode each bit. The implementation represents the bounds of the current range using 32-bit integers, and uses the techniques detailed in \cite{arith} to avoid underflows, allowing it to work with probabilities as small as $2^{-30}$. The same implementation was also used in later tasks.
+We created a custom implementation of arithmetic coding that used the computed conditional probabilities to encode each bit. The implementation represents the bounds of the current range using 32-bit integers, and uses the techniques detailed in \cite{arith} to avoid underflows, allowing it to work with probabilities as small as $2^{-30}$. The same implementation was also used in later tasks.
 
 Using arithmetic coding and the conditional probabilities, we got the data compressed in 8100~bytes.
-Together with the decompression program, this gave a total file size of 9832~bytes.
+Together with the conditional probabilities and the decompression program, this gave a total file size of 9832~bytes.
 
 To evaluate the correctness of our arithmetic coding implementation, we calculated also the theoretical bound for data size using entropy coding.
 According to probabilities in Figure~\ref{ex1_probs}, the total entropy of the input file is 64790.4~bits, which is 8098.8~bytes, so we lose only about 1 byte by not using exact arithmetic in arithmetic coding.
